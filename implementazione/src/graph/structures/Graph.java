@@ -1,9 +1,9 @@
 package graph.structures;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import graph.exceptions.GraphEdgeMissingException;
 import graph.exceptions.GraphNodeMissingException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -42,7 +42,7 @@ public class Graph<K, V, E> {
     }
 
     public @Nullable
-    Node getNode(K key) {
+    Node<K, V, E> getNode(K key) {
         return nodes.get(key);
     }
 
@@ -91,7 +91,8 @@ public class Graph<K, V, E> {
         addNodesEdge(fromKey, null, toKey, null, label);
     }
 
-    public void addNodesEdge(@NotNull K fromKey, @Nullable V fromValue, @NotNull K toKey, @Nullable V toValue, @Nullable E label) {
+    public void addNodesEdge(@NotNull K fromKey, @Nullable V fromValue, @NotNull K toKey, @Nullable V toValue,
+                             @Nullable E label) {
         if (fromKey == null || toKey == null) {
             return;
         }
@@ -149,7 +150,8 @@ public class Graph<K, V, E> {
 
     @SuppressWarnings("Duplicates")
 
-    public void updateEdge(@NotNull K from, @NotNull K to, @Nullable E newLabel) throws GraphNodeMissingException, GraphEdgeMissingException {
+    public void updateEdge(@NotNull K from, @NotNull K to, @Nullable E newLabel) throws GraphNodeMissingException,
+        GraphEdgeMissingException {
         Node<K, V, E> fromNode = nodes.get(from);
         Node<K, V, E> toNode = nodes.get(to);
 
@@ -197,4 +199,19 @@ public class Graph<K, V, E> {
         }
     }
 
+    public Graph<K, V, E> cloneGraph() {
+        Graph<K, V, E> newGraph = new Graph<>(this.directed);
+
+        // copy all edges of all nodes.
+        for (Node<K, V, E> node : newGraph.getNodes()) {
+            for (Edge<K, E> edge : node.getEdges()) {
+                Node<K, V, E> toNode = getNode(edge.getTo());
+                newGraph.addNodesEdge(node.getKey(), node.getValue(),
+                                      toNode.getKey(), toNode.getValue(),
+                                      edge.getLabel());
+            }
+        }
+
+        return newGraph;
+    }
 }
