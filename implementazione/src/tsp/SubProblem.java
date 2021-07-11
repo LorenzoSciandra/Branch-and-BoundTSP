@@ -16,17 +16,27 @@ public class SubProblem {
   private Graph<Integer, Integer, Integer> grafoOriginale;
   private List<Edge<Integer, Integer>> archiForzati;
   private List<Edge<Integer, Integer>> archiVietati;
-  private Node<Integer,Integer,Integer> nodoCandidato;
+  private Integer nodoCandidato;
+  private Graph<Integer,Integer,Integer> unoTree;
+  private int lowerBound;
+  private boolean haCicloHamiltoniano;
+  private boolean ammissibile;
 
   public SubProblem(Graph<Integer, Integer, Integer> grafoOriginale,
                     ArrayList<Edge<Integer, Integer>> archiForzati,
                     ArrayList<Edge<Integer, Integer>> archiVietati,
-                    Node<Integer,Integer,Integer> nodoCandidato) {
+                    Integer nodoCandidato) {
       this.archiForzati = archiForzati;
       this.archiVietati = archiVietati;
       this.grafoOriginale = grafoOriginale;
       this.nodoCandidato = nodoCandidato;
+      this.unoTree = calcola1Tree();
+      this.lowerBound = costo1Tree();
+      this.haCicloHamiltoniano = controllaCiclo();
+      this.ammissibile = unoTree.getNodes().size() == grafoOriginale.getNodes().size() &&
+                         unoTree.getEdges().size() == grafoOriginale.getNodes().size();
   }
+
 
     private class ComparatorIntegerEdge implements Comparator<Edge<Integer, Integer>>{
         @Override
@@ -36,23 +46,23 @@ public class SubProblem {
     }
 
   // evaluate
-  public Graph<Integer,Integer,Integer> calcola1Tree (){
+  private Graph<Integer,Integer,Integer> calcola1Tree (){
       Graph<Integer,Integer,Integer> grafoPerMST = grafoOriginale.clone();
-      grafoPerMST.removeNode(nodoCandidato.getKey());
+      grafoPerMST.removeNode(nodoCandidato);
 
       Graph<Integer,Integer,Integer> mst = MinimumSpanningTree.kruskalForTSP(grafoPerMST, new ComparatorIntegerEdge(),archiForzati, archiVietati);
-      mst.addNode(nodoCandidato.getKey(),nodoCandidato.getValue());
+      mst.addNode(nodoCandidato);
 
       ArrayList<Edge<Integer,Integer>> archiIncidentiForzatiCandidato = new ArrayList<>();
       for (Edge<Integer,Integer> incidenteForzato: archiForzati){
-          if(Objects.equals(incidenteForzato.getFrom(), nodoCandidato.getKey()) || Objects.equals(incidenteForzato.getTo(), nodoCandidato.getKey())){
+          if(Objects.equals(incidenteForzato.getFrom(), nodoCandidato) || Objects.equals(incidenteForzato.getTo(), nodoCandidato)){
               archiIncidentiForzatiCandidato.add(incidenteForzato);
           }
       }
 
       ArrayList<Edge<Integer,Integer>> archiIncidentiVietatiCandidato = new ArrayList<>();
       for (Edge<Integer,Integer> incidenteVietato: archiVietati){
-          if(Objects.equals(incidenteVietato.getFrom(), nodoCandidato.getKey()) || Objects.equals(incidenteVietato.getTo(), nodoCandidato.getKey())){
+          if(Objects.equals(incidenteVietato.getFrom(), nodoCandidato) || Objects.equals(incidenteVietato.getTo(), nodoCandidato)){
               archiIncidentiVietatiCandidato.add(incidenteVietato);
           }
       }
@@ -87,7 +97,7 @@ public class SubProblem {
 
           for(Edge<Integer,Integer> arcoDaAggiungere: grafoOriginale.getEdges()){
               if(!archiIncidentiVietatiCandidato.contains(arcoDaAggiungere)){
-                  if(Objects.equals(arcoDaAggiungere.getTo(), nodoCandidato.getKey()) || Objects.equals(arcoDaAggiungere.getFrom(), nodoCandidato.getKey())){
+                  if(Objects.equals(arcoDaAggiungere.getTo(), nodoCandidato) || Objects.equals(arcoDaAggiungere.getFrom(), nodoCandidato)){
                       if(secondoArcoTrovato == null){
                           secondoArcoTrovato = arcoDaAggiungere;
                       }
@@ -104,7 +114,7 @@ public class SubProblem {
       else{
           for(Edge<Integer,Integer> arcoDaAggiungere: grafoOriginale.getEdges()){
               if(!archiIncidentiVietatiCandidato.contains(arcoDaAggiungere)){
-                  if(Objects.equals(arcoDaAggiungere.getTo(), nodoCandidato.getKey()) || Objects.equals(arcoDaAggiungere.getFrom(), nodoCandidato.getKey())) {
+                  if(Objects.equals(arcoDaAggiungere.getTo(), nodoCandidato) || Objects.equals(arcoDaAggiungere.getFrom(), nodoCandidato)) {
                       if(primoArcoTrovato == null){
                           primoArcoTrovato = arcoDaAggiungere;
                       }
@@ -142,6 +152,54 @@ public class SubProblem {
       return mst;
   }
 
+    private int costo1Tree() {
+      int costo = 0;
 
-  // branch
+      for(Edge<Integer,Integer> arco: this.unoTree.getEdges()){
+          costo = costo + arco.getLabel();
+      }
+      return costo;
+    }
+
+    private boolean controllaCiclo(){
+      boolean controllo = true;
+
+      for(int i = 0; i < unoTree.getNodes().size() && controllo; i++){
+          controllo = unoTree.getNodes().get(i).getEdges().size() == 2;
+      }
+
+      return controllo;
+    }
+
+    public Graph<Integer, Integer, Integer> getGrafoOriginale() {
+        return grafoOriginale;
+    }
+
+    public List<Edge<Integer, Integer>> getArchiForzati() {
+        return archiForzati;
+    }
+
+    public List<Edge<Integer, Integer>> getArchiVietati() {
+        return archiVietati;
+    }
+
+    public Integer getNodoCandidato() {
+        return nodoCandidato;
+    }
+
+    public Graph<Integer, Integer, Integer> getUnoTree() {
+        return unoTree;
+    }
+
+    public int getLowerBound() {
+        return lowerBound;
+    }
+
+    public boolean hasCicloHamiltoniano() {
+        return haCicloHamiltoniano;
+    }
+
+    public boolean isAmmissibile() {
+        return ammissibile;
+    }
 }
