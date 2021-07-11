@@ -2,6 +2,7 @@ package graph.structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Node<K, V, E> {
     private K key;
@@ -68,5 +69,18 @@ public class Node<K, V, E> {
                 ", value=" + value +
                 ", edges=" + edges +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Node<?, ?, ?> node = (Node<?, ?, ?>) o;
+        return key.equals(node.key) && Objects.equals(value, node.value) && edges.equals(node.edges);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value, edges);
     }
 }

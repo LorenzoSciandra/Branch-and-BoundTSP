@@ -4,7 +4,7 @@ import graph.structures.Edge;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EdgeTest {
     private Edge<Integer, Character> edge;
@@ -32,5 +32,11 @@ public class EdgeTest {
     @Test
     public void toString1() {
         assertEquals("Edge{from=1, to=2, label=a}", edge.toString());
+    }
+
+    @Test
+    void testEquals() {
+        assertEquals(edge, new Edge<>(1, 2, 'a'));
+        assertNotEquals(edge, new Edge<>(1, 2, 'b'));
     }
 }

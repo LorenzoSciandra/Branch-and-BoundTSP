@@ -4,9 +4,11 @@ import graph.exceptions.GraphEdgeMissingException;
 import graph.exceptions.GraphNodeMissingException;
 import graph.structures.Edge;
 import graph.structures.Graph;
+import graph.structures.Node;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,13 +54,13 @@ public class UndirectedGraphTest {
         assertEquals(5, graph.nodeCount());
         assertEquals(5, graph.getNode(5).getValue());
 
-        graph.addNode(null, null);
+        assertThrows(IllegalArgumentException.class, () -> graph.addNode(null, null));
         assertEquals(5, graph.nodeCount());
 
         graph.addNode(6, null);
         assertEquals(6, graph.nodeCount());
 
-        graph.addNode(null, 6);
+        assertThrows(IllegalArgumentException.class, () -> graph.addNode(null, 6));
         assertEquals(6, graph.nodeCount());
     }
 
@@ -121,22 +123,20 @@ public class UndirectedGraphTest {
         assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(5, 1, 'd'));
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
-    public void addEdgeNullValue() {
-        assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(null, 1, 'd'));
+    public void addEdgeFromNonExistingNode() {
+        assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(5, 1, 'd'));
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
-    public void addEdgeValueNull() {
-        assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(1, null, 'd'));
+    public void addEdgeToNonExistingNode() {
+        assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(1, 5, 'd'));
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
-    public void addEdgeNullNull() {
-        assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(null, null, 'd'));
+    public void addEdgeForNonExistingNodes() {
+        assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(5, 6, 'd'));
+        assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(6, 5, 'd'));
     }
 
     @Test
@@ -162,15 +162,15 @@ public class UndirectedGraphTest {
         assertEquals('f', graph.getEdge(1, 3).getLabel());
         assertEquals('f', graph.getEdge(3, 1).getLabel());
 
-        graph.addNodesEdge(1, 1, null, null, 'n');
+        assertThrows(IllegalArgumentException.class, () -> graph.addNodesEdge(1, 1, null, null, 'n'));
         assertEquals(7, graph.nodeCount());
         assertEquals(6, graph.edgeCount());
 
-        graph.addNodesEdge(null, null, 2, 2, 'n');
+        assertThrows(IllegalArgumentException.class, () -> graph.addNodesEdge(null, null, 2, 2, 'n'));
         assertEquals(7, graph.nodeCount());
         assertEquals(6, graph.edgeCount());
 
-        graph.addNodesEdge(null, null, null, null, 'n');
+        assertThrows(IllegalArgumentException.class, () -> graph.addNodesEdge(null, null, null, null, 'n'));
         assertEquals(7, graph.nodeCount());
         assertEquals(6, graph.edgeCount());
     }
@@ -227,18 +227,11 @@ public class UndirectedGraphTest {
     }
 
     @Test
-    public void updateEdgeValueNull()  {
-        assertThrows(GraphNodeMissingException.class, () -> graph.updateEdge(1, null, 'c'));
-    }
-
-    @Test
-    public void updateEdgeNullValue() {
-        assertThrows(GraphNodeMissingException.class, () -> graph.updateEdge(null, 2, 'c'));
-    }
-
-    @Test
-    public void updateEdgeNullNull() {
-        assertThrows(GraphNodeMissingException.class, () -> graph.updateEdge(null, null, 'c'));
+    public void updateNonExistingEdge() {
+        assertThrows(GraphNodeMissingException.class, () -> graph.updateEdge(1, 5, 'c'));
+        assertThrows(GraphNodeMissingException.class, () -> graph.updateEdge(5, 2, 'c'));
+        assertThrows(GraphNodeMissingException.class, () -> graph.updateEdge(5, 6, 'c'));
+        assertThrows(GraphNodeMissingException.class, () -> graph.updateEdge(6, 5, 'c'));
     }
 
     @Test
@@ -257,19 +250,47 @@ public class UndirectedGraphTest {
     @Test
     public void removeEdgeMissing() {
         assertEquals(3, graph.edgeCount());
-        assertThrows(GraphNodeMissingException.class, () -> graph.removeEdge(3, 1));
+        assertDoesNotThrow(() -> graph.removeEdge(3, 1));
         assertEquals(3, graph.edgeCount());
     }
 
     @Test
-    public void removeEdgeNullValue()  {
-        assertThrows(GraphNodeMissingException.class, () -> graph.removeEdge(null, 2));
+    public void removeEdgeNullValue() {
+        assertThrows(IllegalArgumentException.class, () -> graph.removeEdge(null, 2));
     }
 
     @Test
     public void removeEdgeValueNull() {
         assertEquals(3, graph.edgeCount());
-        assertThrows(GraphNodeMissingException.class, () -> graph.removeEdge(2, null));
+        assertThrows(IllegalArgumentException.class, () -> graph.removeEdge(2, null));
         assertEquals(3, graph.edgeCount());
+    }
+
+    @Test
+    void getNodes() {
+        ArrayList<Node<Integer, Integer, Character>> nodes = graph.getNodes();
+        assertEquals(4, nodes.size());
+    }
+
+    @Test
+    void cloneTest() {
+        Graph<Integer, Integer, Character> clonedGraph = graph.clone();
+
+        assertNotSame(clonedGraph, graph);
+
+        for (Node<Integer, Integer, Character> originalNode : graph.getNodes()) {
+            Node<Integer, Integer, Character> cloneNode = clonedGraph.getNode(originalNode.getKey());
+
+            assertNotSame(originalNode, cloneNode);
+            assertEquals(originalNode, cloneNode);
+        }
+
+        for (Edge<Integer, Character> edge : graph.getEdges()) {
+            Edge<Integer, Character> clonedEdge = clonedGraph.getEdge(edge.getFrom(), edge.getTo());
+
+            assertNotSame(edge, clonedEdge);
+            assertEquals(edge, clonedEdge);
+        }
+
     }
 }

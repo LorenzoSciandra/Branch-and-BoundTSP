@@ -92,4 +92,19 @@ public class NodeTest {
     public void toString1() {
         assertEquals("Node{key=1, value=1, edges={2=a}}", node.toString());
     }
+
+    @Test
+    void getAdjacentNodesKeys() {
+        assertEquals(1, node.getAdjacentNodesKeys().size());
+    }
+
+    @Test
+    void testEquals() {
+        Node<Integer, Integer, Object> node2 = new Node<>(1, 1);
+        node2.addEdge(2, 'a');
+
+        assertEquals(node, node2);
+        assertNotEquals(node, new Node<>(1, 1));
+        assertNotEquals(node, new Node<>(1, 2));
+    }
 }

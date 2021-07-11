@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class Graph<K, V, E> {
+public class Graph<K, V, E> implements Cloneable {
 
     private HashMap<K, Node<K, V, E>> nodes;
 
@@ -119,7 +119,7 @@ public class Graph<K, V, E> {
     }
 
     public @Nullable
-    Edge getEdge(K from, K to) {
+    Edge<K, E> getEdge(K from, K to) {
         // Thanks prof.
         Node<K, V, E> fromNode = nodes.get(from);
 
@@ -199,11 +199,12 @@ public class Graph<K, V, E> {
         }
     }
 
-    public Graph<K, V, E> cloneGraph() {
+    @Override
+    public Graph<K, V, E> clone() {
         Graph<K, V, E> newGraph = new Graph<>(this.directed);
 
         // copy all edges of all nodes.
-        for (Node<K, V, E> node : newGraph.getNodes()) {
+        for (Node<K, V, E> node : getNodes()) {
             for (Edge<K, E> edge : node.getEdges()) {
                 Node<K, V, E> toNode = getNode(edge.getTo());
                 newGraph.addNodesEdge(node.getKey(), node.getValue(),

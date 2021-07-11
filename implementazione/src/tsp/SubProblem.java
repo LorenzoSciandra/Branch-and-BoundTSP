@@ -37,7 +37,7 @@ public class SubProblem {
 
   // evaluate
   public Graph<Integer,Integer,Integer> calcola1Tree (){
-      Graph<Integer,Integer,Integer> grafoPerMST = grafoOriginale.cloneGraph();
+      Graph<Integer,Integer,Integer> grafoPerMST = grafoOriginale.clone();
       grafoPerMST.removeNode(nodoCandidato.getKey());
 
       Graph<Integer,Integer,Integer> mst = MinimumSpanningTree.kruskalForTSP(grafoPerMST, new ComparatorIntegerEdge(),archiForzati, archiVietati);
