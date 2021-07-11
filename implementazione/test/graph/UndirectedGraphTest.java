@@ -293,4 +293,15 @@ public class UndirectedGraphTest {
         }
 
     }
+
+    @Test
+    void testEquals() {
+        Graph<Integer, Integer, Character> graph2 = new Graph<>(false);
+
+        graph2.addNodesEdge(1, 1, 2, 2, 'a');
+        graph2.addNodesEdge(2, 2, 3, 3, 'b');
+        graph2.addNodesEdge(2, 2, 4, 4, 'c');
+
+        assertEquals(graph, graph2);
+    }
 }

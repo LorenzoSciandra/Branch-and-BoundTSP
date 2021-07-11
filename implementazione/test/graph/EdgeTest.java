@@ -30,6 +30,15 @@ public class EdgeTest {
     }
 
     @Test
+    void inverse() {
+        Edge<Integer, Character> inverse = edge.inverse();
+        assertEquals('a', inverse.getLabel().charValue());
+        assertEquals(2, inverse.getFrom().intValue());
+        assertEquals(1, inverse.getTo().intValue());
+
+    }
+
+    @Test
     public void toString1() {
         assertEquals("Edge{from=1, to=2, label=a}", edge.toString());
     }

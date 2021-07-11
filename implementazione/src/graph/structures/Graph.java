@@ -215,4 +215,17 @@ public class Graph<K, V, E> implements Cloneable {
 
         return newGraph;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Graph<?, ?, ?> graph = (Graph<?, ?, ?>) o;
+        return directed == graph.directed && nodes.equals(graph.nodes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nodes, directed);
+    }
 }

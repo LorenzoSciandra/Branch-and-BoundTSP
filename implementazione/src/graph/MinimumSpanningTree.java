@@ -1,14 +1,13 @@
 package graph;
 
 import graph.structures.Edge;
+import graph.structures.Graph;
 import org.jetbrains.annotations.NotNull;
 import unionfindset.UnionFind;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import graph.structures.Graph;
 
 /**
  * A minimum spanning tree (MST) or minimum weight spanning tree
@@ -49,34 +48,38 @@ public class MinimumSpanningTree {
         return mst;
     }
 
-    public static <K, V, E> Graph<K, V, E>
-    kruskalForTSP(@NotNull Graph<K, V, E> graph,
-                  @NotNull Comparator<Edge<K, E>> e,
-                  @NotNull List<Edge<K, E>> mandatoryEdges,
-                  @NotNull List<Edge<K, E>> forbiddenEdges) {
+    public static <K, V, E> @NotNull Graph<K, V, E> kruskalForTSP(@NotNull Graph<K, V, E> graph,
+                                                                  @NotNull Comparator<Edge<K, E>> e,
+                                                                  @NotNull List<Edge<K, E>> mandatoryEdges,
+                                                                  @NotNull List<Edge<K, E>> forbiddenEdges) {
+
         Graph<K, V, E> mst = new Graph<>(false);
-        ArrayList<Edge<K, E>> l;
+        ArrayList<Edge<K, E>> edgeList;
         UnionFind<K> uf = new UnionFind<>();
-        Edge<K, E> elem;
 
         graph.getNodes().forEach(n -> uf.makeSet(n.getKey()));
 
-        l = graph.getEdges();
-        l.sort(e);
+        edgeList = graph.getEdges();
+        edgeList.sort(e);
 
-        //TODO check condition
-        for (Edge<K, E> keEdge : l) {
+        for (Edge<K, E> edge : mandatoryEdges) {
+            mst.addNodesEdge(edge.getFrom(), edge.getTo(), edge.getLabel());
+            uf.union(edge.getFrom(), edge.getTo());
+        }
+
+        for (Edge<K, E> edge : edgeList) {
             // Skip edges that MUST NOT be added under any circumstance
-            if (forbiddenEdges.contains(keEdge)) {
+            // Also skip all edges already added
+            if (forbiddenEdges.contains(edge) || forbiddenEdges.contains(edge.inverse()) ||
+                mandatoryEdges.contains(edge) || mandatoryEdges.contains(edge.inverse())){
                 continue;
             }
 
-            if (uf.findSet(keEdge.getFrom()) != uf.findSet(keEdge.getTo())) {
-                mst.addNodesEdge(keEdge.getFrom(), keEdge.getTo(), keEdge.getLabel());
-                uf.union(keEdge.getFrom(), keEdge.getTo());
+            if (uf.findSet(edge.getFrom()) != uf.findSet(edge.getTo())) {
+                mst.addNodesEdge(edge.getFrom(), edge.getTo(), edge.getLabel());
+                uf.union(edge.getFrom(), edge.getTo());
             }
         }
-
         return mst;
     }
 }

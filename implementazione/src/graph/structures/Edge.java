@@ -26,6 +26,10 @@ public class Edge<K, E> {
         return label;
     }
 
+    public Edge<K, E> inverse() {
+        return new Edge<>(to, from, label);
+    }
+
     @Override
     public String toString() {
         return "Edge{" +
