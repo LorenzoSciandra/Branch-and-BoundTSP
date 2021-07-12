@@ -5,13 +5,15 @@ import graph.exceptions.GraphNodeMissingException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
 
 public class Graph<K, V, E> implements Cloneable {
 
-    private HashMap<K, Node<K, V, E>> nodes;
+    private final HashMap<K, Node<K, V, E>> nodes;
 
-    private boolean directed;
+    private final boolean directed;
 
     public Graph(boolean directed) {
         nodes = new HashMap<>();
@@ -31,18 +33,19 @@ public class Graph<K, V, E> implements Cloneable {
         return directed ? edgesCounter : edgesCounter / 2;
     }
 
-    public void addNode(@NotNull K key) {
+    public Graph<K, V, E> addNode(@NotNull K key) {
         addNode(key, null);
+        return this;
     }
 
-    public void addNode(@NotNull K key, @Nullable V value) {
-        if (key != null && !containsNode(key)) {
+    public Graph<K, V, E> addNode(@NotNull K key, @Nullable V value) {
+        if (!containsNode(key)) {
             nodes.put(key, new Node<>(key, value));
         }
+        return this;
     }
 
-    public @Nullable
-    Node<K, V, E> getNode(K key) {
+    public @Nullable Node<K, V, E> getNode(K key) {
         return nodes.get(key);
     }
 
@@ -54,16 +57,18 @@ public class Graph<K, V, E> implements Cloneable {
         return new ArrayList<>(this.nodes.values());
     }
 
-    public void removeNode(K key) {
+    public Graph<K, V, E> removeNode(K key) {
         for (Node<K, V, E> node : nodes.values()) {
             node.removeEdge(key);
         }
 
         nodes.remove(key);
+
+        return this;
     }
 
     @SuppressWarnings("Duplicates")
-    public void addEdge(@NotNull K from, @NotNull K to, @Nullable E label) throws GraphNodeMissingException {
+    public Graph<K, V, E> addEdge(@NotNull K from, @NotNull K to, @Nullable E label) throws GraphNodeMissingException {
         Node<K, V, E> fromNode = nodes.get(from);
         Node<K, V, E> toNode = nodes.get(to);
 
@@ -85,17 +90,16 @@ public class Graph<K, V, E> implements Cloneable {
                 toNode.addEdge(from, label);
             }
         }
+
+        return this;
     }
 
-    public void addNodesEdge(@NotNull K fromKey, @NotNull K toKey, @Nullable E label) {
-        addNodesEdge(fromKey, null, toKey, null, label);
+    public Graph<K, V, E> addNodesEdge(@NotNull K fromKey, @NotNull K toKey, @Nullable E label) {
+        return addNodesEdge(fromKey, null, toKey, null, label);
     }
 
-    public void addNodesEdge(@NotNull K fromKey, @Nullable V fromValue, @NotNull K toKey, @Nullable V toValue,
-                             @Nullable E label) {
-        if (fromKey == null || toKey == null) {
-            return;
-        }
+    public Graph<K, V, E> addNodesEdge(@NotNull K fromKey, @Nullable V fromValue, @NotNull K toKey, @Nullable V toValue,
+                                       @Nullable E label) {
 
         Node<K, V, E> fromNode = nodes.get(fromKey);
         Node<K, V, E> toNode = nodes.get(toKey);
@@ -116,6 +120,8 @@ public class Graph<K, V, E> implements Cloneable {
                 toNode.addEdge(fromKey, label);
             }
         }
+
+        return this;
     }
 
     public @Nullable
@@ -150,7 +156,7 @@ public class Graph<K, V, E> implements Cloneable {
 
     @SuppressWarnings("Duplicates")
 
-    public void updateEdge(@NotNull K from, @NotNull K to, @Nullable E newLabel) throws GraphNodeMissingException,
+    public Graph<K, V, E> updateEdge(@NotNull K from, @NotNull K to, @Nullable E newLabel) throws GraphNodeMissingException,
         GraphEdgeMissingException {
         Node<K, V, E> fromNode = nodes.get(from);
         Node<K, V, E> toNode = nodes.get(to);
@@ -179,9 +185,11 @@ public class Graph<K, V, E> implements Cloneable {
         } else {
             throw new GraphEdgeMissingException("Missing EDGE in graph.");
         }
+
+        return this;
     }
 
-    public void removeEdge(@NotNull K from, @NotNull K to) throws GraphNodeMissingException {
+    public Graph<K, V, E> removeEdge(@NotNull K from, @NotNull K to) throws GraphNodeMissingException {
         Node<K, V, E> fromNode = nodes.get(from);
         Node<K, V, E> toNode = nodes.get(to);
 
@@ -197,8 +205,11 @@ public class Graph<K, V, E> implements Cloneable {
         } else {
             throw new GraphNodeMissingException("Missing Node FROM in graph.");
         }
+
+        return this;
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Graph<K, V, E> clone() {
         Graph<K, V, E> newGraph = new Graph<>(this.directed);
@@ -207,6 +218,7 @@ public class Graph<K, V, E> implements Cloneable {
         for (Node<K, V, E> node : getNodes()) {
             for (Edge<K, E> edge : node.getEdges()) {
                 Node<K, V, E> toNode = getNode(edge.getTo());
+                //noinspection ConstantConditions
                 newGraph.addNodesEdge(node.getKey(), node.getValue(),
                                       toNode.getKey(), toNode.getValue(),
                                       edge.getLabel());
