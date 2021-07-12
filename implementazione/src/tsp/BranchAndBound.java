@@ -21,27 +21,27 @@ public class BranchAndBound {
         this.nodoCandidato = nodoCandidato;
     }
 
-    public CicloHamiltoniano branchAndBoundTsp() {
+    public HamiltonianCycle branchAndBoundTsp() {
         SubProblem sp = new SubProblem(grafo, new ArrayList<>(), new ArrayList<>(), nodoCandidato);
         problemi.add(sp);
-        CicloHamiltoniano minimoCicloHamiltoniano = new CicloHamiltoniano(grafo, Integer.MAX_VALUE);
+        HamiltonianCycle minimumHamiltonianCycle = new HamiltonianCycle(grafo, Integer.MAX_VALUE);
 
         while (!problemi.isEmpty()) {
             SubProblem problemaCorrente = problemi.get(0);
             problemi.remove(0);
             if (problemaCorrente.hasCicloHamiltoniano()) {
-                if (minimoCicloHamiltoniano.getCosto() > problemaCorrente.getLowerBound()) {
-                    minimoCicloHamiltoniano.setCosto(problemaCorrente.getLowerBound());
-                    minimoCicloHamiltoniano.setGrafo(problemaCorrente.getUnoTree());
+                if (minimumHamiltonianCycle.getCost() > problemaCorrente.getLowerBound()) {
+                    minimumHamiltonianCycle.setCost(problemaCorrente.getLowerBound());
+                    minimumHamiltonianCycle.setGraph(problemaCorrente.getUnoTree());
                 }
             } else {
-                if (problemaCorrente.isAmmissibile() && problemaCorrente.getLowerBound() < minimoCicloHamiltoniano.getCosto()) {
+                if (problemaCorrente.isAmmissibile() && problemaCorrente.getLowerBound() < minimumHamiltonianCycle.getCost()) {
                     branching(problemaCorrente);
                 }
             }
         }
 
-        return minimoCicloHamiltoniano;
+        return minimumHamiltonianCycle;
     }
 
     private void branching(SubProblem problemaCorrente) {
