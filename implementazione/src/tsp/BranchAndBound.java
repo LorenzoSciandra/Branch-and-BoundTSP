@@ -3,14 +3,15 @@ package tsp;
 import graph.structures.Edge;
 import graph.structures.Graph;
 import graph.structures.Node;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 public class BranchAndBound {
 
+    // todo convert to priority queue
     public List<SubProblem> subProblemQueue;
     public Graph<Integer, Integer, Integer> graph;
     private Integer candidateNode;
@@ -24,69 +25,67 @@ public class BranchAndBound {
     public HamiltonianCycle solveProblem() {
         SubProblem rootProblem = new SubProblem(graph, candidateNode);
         subProblemQueue.add(rootProblem);
-        HamiltonianCycle minimumHamiltonianCycle = new HamiltonianCycle(graph, Integer.MAX_VALUE);
+        HamiltonianCycle minHamiltonianCycle = new HamiltonianCycle(graph, Integer.MAX_VALUE);
 
         while (!subProblemQueue.isEmpty()) {
-            SubProblem problemaCorrente = subProblemQueue.get(0);
-            subProblemQueue.remove(0);
-            if (problemaCorrente.containsHamiltonianCycle()) {
-                if (minimumHamiltonianCycle.getCost() > problemaCorrente.getLowerBound()) {
-                    minimumHamiltonianCycle.setCost(problemaCorrente.getLowerBound());
-                    minimumHamiltonianCycle.setGraph(problemaCorrente.getOneTree());
+            SubProblem currentProblem = subProblemQueue.remove(0);
+            if (currentProblem.containsHamiltonianCycle()) {
+                if (minHamiltonianCycle.getCost() > currentProblem.getLowerBound()) {
+                    // found better solution! Closing because candidate solution.
+                    minHamiltonianCycle.setCost(currentProblem.getLowerBound());
+                    minHamiltonianCycle.setGraph(currentProblem.getOneTree());
                 }
-            } else {
-                if (problemaCorrente.isFeasible() && problemaCorrente.getLowerBound() < minimumHamiltonianCycle.getCost()) {
-                    branching(problemaCorrente);
-                }
+            } else if (currentProblem.isFeasible() && currentProblem.getLowerBound() < minHamiltonianCycle.getCost()) {
+                branch(currentProblem);
             }
+            // else closed because unfeasible
         }
 
-        return minimumHamiltonianCycle;
+        return minHamiltonianCycle;
     }
 
-    private void branching(SubProblem problemaCorrente) {
+    private void branch(SubProblem currentProblem) {
 
-        HashMap<Integer, Integer> vettorePadri = new HashMap<>();
-        dfs(Objects.requireNonNull(problemaCorrente.getOneTree()
-                                                   .getNode(candidateNode)), vettorePadri,
-            problemaCorrente.getOneTree());
+        HashMap<Integer, Integer> parentsVector = new HashMap<>();
+        dfs(currentProblem.getOneTree().getNode(candidateNode), parentsVector, currentProblem.getOneTree());
 
-        ArrayList<Edge<Integer, Integer>> sottoCiclo = new ArrayList<>();
+        ArrayList<Edge<Integer, Integer>> subCycle = new ArrayList<>();
 
-        int nodoTo = candidateNode;
-        int nodoFrom = Integer.MAX_VALUE;
-        while (nodoFrom != candidateNode) {
-            nodoFrom = vettorePadri.get(nodoTo);
-            sottoCiclo.add(problemaCorrente.getOneTree().getEdge(nodoFrom, nodoTo));
-            nodoTo = nodoFrom;
+        int toNode = candidateNode;
+        int fromNode = Integer.MAX_VALUE;
+        while (fromNode != candidateNode) {
+            fromNode = parentsVector.get(toNode);
+            subCycle.add(currentProblem.getOneTree().getEdge(fromNode, toNode));
+            toNode = fromNode;
         }
 
-        ArrayList<Edge<Integer, Integer>> archiForzati = new ArrayList<>();
-        ArrayList<Edge<Integer, Integer>> archiVietati = new ArrayList<>();
+        ArrayList<Edge<Integer, Integer>> mandatoryEdges = new ArrayList<>();
+        ArrayList<Edge<Integer, Integer>> forbiddenEdges = new ArrayList<>();
 
-        for (int i = 0; i < sottoCiclo.size(); i++) {
-            archiVietati.add(sottoCiclo.get(i));
-            SubProblem sp = new SubProblem(graph, archiVietati, archiForzati, candidateNode);
+        for (Edge<Integer, Integer> integerIntegerEdge : subCycle) {
+            forbiddenEdges.add(integerIntegerEdge);
+            SubProblem sp = new SubProblem(graph,
+                                           ((List<Edge<Integer, Integer>>) forbiddenEdges.clone()),
+                                           ((List<Edge<Integer, Integer>>) mandatoryEdges.clone()),
+                                           candidateNode);
             subProblemQueue.add(sp);
-            archiVietati.remove(0);
-            archiForzati.add(sottoCiclo.get(i));
+            forbiddenEdges.remove(0);
+            mandatoryEdges.add(integerIntegerEdge);
         }
     }
 
-    private void dfs(Node<Integer, Integer, Integer> nodoCorrente, HashMap<Integer, Integer> vettorePadri,
+    private void dfs(@NotNull Node<Integer, Integer, Integer> nodoCorrente,
+                     HashMap<Integer, Integer> vettorePadri,
                      Graph<Integer, Integer, Integer> grafo) {
-
         for (Edge<Integer, Integer> arcoUscente : nodoCorrente.getEdges()) {
             if (!vettorePadri.containsKey(arcoUscente.getTo())) {
                 if (!vettorePadri.containsKey(nodoCorrente.getKey()) ||
                     !vettorePadri.get(nodoCorrente.getKey()).equals(arcoUscente.getTo())) {
 
                     vettorePadri.put(arcoUscente.getTo(), nodoCorrente.getKey());
-                    dfs(Objects.requireNonNull(grafo.getNode(arcoUscente.getTo())), vettorePadri, grafo);
+                    dfs(grafo.getNode(arcoUscente.getTo()), vettorePadri, grafo);
                 }
-
             }
         }
-
     }
 }

@@ -29,8 +29,8 @@ public class SubProblem {
     }
 
     public SubProblem(@NotNull Graph<Integer, Integer, Integer> originalGraph,
-                      ArrayList<Edge<Integer, Integer>> mandatoryEdges,
-                      ArrayList<Edge<Integer, Integer>> forbiddenEdges,
+                      List<Edge<Integer, Integer>> mandatoryEdges,
+                      List<Edge<Integer, Integer>> forbiddenEdges,
                       Integer candidateNode) {
         this.mandatoryEdges = mandatoryEdges;
         this.forbiddenEdges = forbiddenEdges;
