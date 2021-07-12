@@ -67,6 +67,10 @@ public class Graph<K, V, E> implements Cloneable {
         return this;
     }
 
+    public Graph<K, V, E> addEdge(@NotNull Edge<K, E> edge) throws GraphNodeMissingException {
+        return this.addEdge(edge.getFrom(), edge.getTo(), edge.getLabel());
+    }
+
     @SuppressWarnings("Duplicates")
     public Graph<K, V, E> addEdge(@NotNull K from, @NotNull K to, @Nullable E label) throws GraphNodeMissingException {
         Node<K, V, E> fromNode = nodes.get(from);
