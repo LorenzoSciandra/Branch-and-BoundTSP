@@ -57,13 +57,13 @@ public class DirectedGraphTest {
         graph.addNode(3, 3);
         assertEquals(3, graph.getNode(3).getValue());
 
-        graph.addNode(null, null);
+        assertThrows(IllegalArgumentException.class, () -> graph.addNode(null, null));
         assertEquals(3, graph.nodeCount());
 
         graph.addNode(4, null);
         assertEquals(4, graph.nodeCount());
 
-        graph.addNode(null, 5);
+        assertThrows(IllegalArgumentException.class, () -> graph.addNode(null, 5));
         assertEquals(4, graph.nodeCount());
     }
 
@@ -133,17 +133,17 @@ public class DirectedGraphTest {
 
     @Test
     public void addEdgeNullValue() {
-        assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(null, 1, 'd'));
+        assertThrows(IllegalArgumentException.class, () -> graph.addEdge(null, 1, 'd'));
     }
 
     @Test
     public void addEdgeValueNull() {
-        assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(1, null, 'd'));
+        assertThrows(IllegalArgumentException.class, () -> graph.addEdge(1, null, 'd'));
     }
 
     @Test
     public void addEdgeNullNull() {
-        assertThrows(GraphNodeMissingException.class, () -> graph.addEdge(null, null, 'd'));
+        assertThrows(IllegalArgumentException.class, () -> graph.addEdge(null, null, 'd'));
     }
 
     @Test
@@ -166,15 +166,15 @@ public class DirectedGraphTest {
         assertEquals(4, graph.edgeCount());
         assertEquals('e', graph.getEdge(2, 4).getLabel());
 
-        graph.addNodesEdge(1, 1, null, null, 'n');
+        assertThrows(IllegalArgumentException.class, () -> graph.addNodesEdge(1, 1, null, null, 'n'));
         assertEquals(5, graph.nodeCount());
         assertEquals(4, graph.edgeCount());
 
-        graph.addNodesEdge(null, null, 2, 2, 'n');
+        assertThrows(IllegalArgumentException.class, () -> graph.addNodesEdge(null, null, 2, 2, 'n'));
         assertEquals(5, graph.nodeCount());
         assertEquals(4, graph.edgeCount());
 
-        graph.addNodesEdge(null, null, null, null, 'n');
+        assertThrows(IllegalArgumentException.class, () -> graph.addNodesEdge(null, null, null, null, 'n'));
         assertEquals(5, graph.nodeCount());
         assertEquals(4, graph.edgeCount());
     }
@@ -224,17 +224,17 @@ public class DirectedGraphTest {
 
     @Test
     public void updateEdgeValueNull() throws GraphNodeMissingException, GraphEdgeMissingException {
-        assertThrows(GraphNodeMissingException.class, () -> graph.updateEdge(1, null, 'c'));
+        assertThrows(IllegalArgumentException.class, () -> graph.updateEdge(1, null, 'c'));
     }
 
     @Test
     public void updateEdgeNullValue() {
-        assertThrows(GraphNodeMissingException.class, () -> graph.updateEdge(null, 2, 'c'));
+        assertThrows(IllegalArgumentException.class, () -> graph.updateEdge(null, 2, 'c'));
     }
 
     @Test
     public void updateEdgeNullNull() throws GraphNodeMissingException, GraphEdgeMissingException {
-        assertThrows(GraphNodeMissingException.class, () -> graph.updateEdge(null, null, 'c'));
+        assertThrows(IllegalArgumentException.class, () -> graph.updateEdge(null, null, 'c'));
     }
 
     @Test
@@ -258,14 +258,14 @@ public class DirectedGraphTest {
     }
 
     @Test
-    public void removeEdgeNullValue() throws GraphNodeMissingException {
-        assertThrows(GraphNodeMissingException.class, () -> graph.removeEdge(null, 2));
+    public void removeEdgeNullValue() {
+        assertThrows(IllegalArgumentException.class, () -> graph.removeEdge(null, 2));
     }
 
     @Test
-    public void removeEdgeValueNull() throws GraphNodeMissingException {
+    public void removeEdgeValueNull() {
         assertEquals(1, graph.edgeCount());
-        graph.removeEdge(2, null);
+        assertThrows(IllegalArgumentException.class, () -> graph.removeEdge(2, null));
         assertEquals(1, graph.edgeCount());
     }
 }
