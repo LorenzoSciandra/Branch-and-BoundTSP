@@ -5,10 +5,7 @@ import graph.exceptions.GraphNodeMissingException;
 import graph.structures.Edge;
 import graph.structures.Graph;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class SubProblem {
 
@@ -20,6 +17,10 @@ public class SubProblem {
     private int lowerBound;
     private boolean haCicloHamiltoniano;
     private boolean ammissibile;
+
+    public SubProblem(Graph<Integer, Integer, Integer> grafoOriginale, Integer nodoCandidato) {
+        this(grafoOriginale, new ArrayList<>(0), new ArrayList<>(0), nodoCandidato);
+    }
 
     public SubProblem(Graph<Integer, Integer, Integer> grafoOriginale,
                       ArrayList<Edge<Integer, Integer>> archiForzati,
