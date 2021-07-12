@@ -104,7 +104,7 @@ public class DirectedGraphTest {
         graph.removeNode(2);
         assertEquals(1, graph.nodeCount());
         assertEquals(0, graph.edgeCount());
-        assertEquals(0, graph.getNode(1).edgesCount());
+        assertEquals(0, graph.getNode(1).getDegree());
     }
 
     @Test

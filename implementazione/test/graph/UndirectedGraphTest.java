@@ -91,9 +91,9 @@ public class UndirectedGraphTest {
         assertEquals(3, graph.nodeCount());
         assertEquals(0, graph.edgeCount());
 
-        assertEquals(0, graph.getNode(1).edgesCount());
-        assertEquals(0, graph.getNode(3).edgesCount());
-        assertEquals(0, graph.getNode(4).edgesCount());
+        assertEquals(0, graph.getNode(1).getDegree());
+        assertEquals(0, graph.getNode(3).getDegree());
+        assertEquals(0, graph.getNode(4).getDegree());
     }
 
     @Test

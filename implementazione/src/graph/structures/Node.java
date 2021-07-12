@@ -54,7 +54,7 @@ public class Node<K, V, E> {
         return new ArrayList<>(this.edges.keySet());
     }
 
-    public int edgesCount() {
+    public int getDegree() {
         return edges.size();
     }
 

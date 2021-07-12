@@ -65,21 +65,21 @@ public class NodeTest {
 
     @Test
     public void edgesCount() {
-        assertEquals(1, node.edgesCount());
+        assertEquals(1, node.getDegree());
     }
 
     @Test
     public void removeEdge() {
-        assertEquals(1, node.edgesCount());
+        assertEquals(1, node.getDegree());
         node.removeEdge(2);
-        assertEquals(0, node.edgesCount());
+        assertEquals(0, node.getDegree());
     }
 
     @Test
     public void addEdge() {
-        assertEquals(1, node.edgesCount());
+        assertEquals(1, node.getDegree());
         node.addEdge(3, 'b');
-        assertEquals(2, node.edgesCount());
+        assertEquals(2, node.getDegree());
 
         Edge<Integer, Character> edge = node.getEdge(3);
         assertNotNull(edge);

@@ -133,7 +133,7 @@ public class SubProblem {
     private boolean checkForHamiltonianCycle() {
         return oneTree.getNodes()
                       .stream()
-                      .map(Node::edgesCount)
+                      .map(Node::getDegree)
                       .allMatch(degree -> degree == 2);
     }
 

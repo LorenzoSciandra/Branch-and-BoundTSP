@@ -29,7 +29,7 @@ public class Graph<K, V, E> implements Cloneable {
     }
 
     public int edgeCount() {
-        int edgesCounter = nodes.values().stream().mapToInt(Node::edgesCount).sum();
+        int edgesCounter = nodes.values().stream().mapToInt(Node::getDegree).sum();
         return directed ? edgesCounter : edgesCounter / 2;
     }
 
