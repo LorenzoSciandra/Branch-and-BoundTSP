@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static graph.MinimumSpanningTree.kruskalForTSP;
 
-public class SubProblem {
+public class SubProblem implements Comparable<SubProblem>{
 
     private Graph<Integer, Integer, Integer> originalGraph;
     private List<Edge<Integer, Integer>> mandatoryEdges;
@@ -167,6 +167,11 @@ public class SubProblem {
 
     public boolean isFeasible() {
         return feasible;
+    }
+
+    @Override
+    public int compareTo(@NotNull SubProblem o) {
+        return Integer.compare(this.lowerBound, o.lowerBound);
     }
 
     private static class ComparatorIntegerEdge implements Comparator<Edge<Integer, Integer>> {

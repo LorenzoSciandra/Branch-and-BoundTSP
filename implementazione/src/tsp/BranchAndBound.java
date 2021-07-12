@@ -8,17 +8,18 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.PriorityQueue;
 
 public class BranchAndBound {
 
     // todo convert to priority queue
-    public List<SubProblem> subProblemQueue;
+    public PriorityQueue<SubProblem> subProblemQueue;
     public Graph<Integer, Integer, Integer> graph;
     private Integer candidateNode;
 
     public BranchAndBound(Graph<Integer, Integer, Integer> graph, Integer candidateNode) {
         this.graph = graph;
-        this.subProblemQueue = new ArrayList<>();
+        this.subProblemQueue = new PriorityQueue<>();
         this.candidateNode = candidateNode;
     }
 
@@ -28,7 +29,7 @@ public class BranchAndBound {
         HamiltonianCycle minHamiltonianCycle = new HamiltonianCycle(graph, Integer.MAX_VALUE);
 
         while (!subProblemQueue.isEmpty()) {
-            SubProblem currentProblem = subProblemQueue.remove(0);
+            SubProblem currentProblem = subProblemQueue.remove();
             if (currentProblem.containsHamiltonianCycle()) {
                 if (minHamiltonianCycle.getCost() > currentProblem.getLowerBound()) {
                     // found better solution! Closing because candidate solution.
