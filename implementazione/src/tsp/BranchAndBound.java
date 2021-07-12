@@ -5,7 +5,9 @@ import graph.structures.Graph;
 import graph.structures.Node;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class BranchAndBound {
 
@@ -15,14 +17,13 @@ public class BranchAndBound {
 
     public BranchAndBound(Graph<Integer, Integer, Integer> grafo, Integer nodoCandidato) {
         this.grafo = grafo;
-        SubProblem sp = new SubProblem(grafo, new ArrayList<>(), new ArrayList<>(), nodoCandidato);
-        problemi = new ArrayList<>();
-        problemi.add(sp);
+        this.problemi = new ArrayList<>();
         this.nodoCandidato = nodoCandidato;
     }
 
     public CicloHamiltoniano branchAndBoundTsp() {
-
+        SubProblem sp = new SubProblem(grafo, new ArrayList<>(), new ArrayList<>(), nodoCandidato);
+        problemi.add(sp);
         CicloHamiltoniano minimoCicloHamiltoniano = new CicloHamiltoniano(grafo, Integer.MAX_VALUE);
 
         while (!problemi.isEmpty()) {
@@ -44,8 +45,19 @@ public class BranchAndBound {
     }
 
     private void branching(SubProblem problemaCorrente) {
-        List<Edge<Integer, Integer>> sottoCiclo = dfs(problemaCorrente.getUnoTree()
-                                                                      .getNode(nodoCandidato), new ArrayList<>());
+
+        HashMap<Integer,Integer> vettorePadri = new HashMap<>();
+        dfs(Objects.requireNonNull(problemaCorrente.getUnoTree().getNode(nodoCandidato)), vettorePadri, problemaCorrente.getUnoTree());
+
+        ArrayList<Edge<Integer,Integer>> sottoCiclo = new ArrayList<>();
+
+        int nodoTo = nodoCandidato;
+        int nodoFrom = Integer.MAX_VALUE;
+        while(nodoFrom != nodoCandidato){
+            nodoFrom = vettorePadri.get(nodoTo);
+            sottoCiclo.add(problemaCorrente.getUnoTree().getEdge(nodoFrom,nodoTo));
+            nodoTo = nodoFrom;
+        }
 
         ArrayList<Edge<Integer, Integer>> archiForzati = new ArrayList<>();
         ArrayList<Edge<Integer, Integer>> archiVietati = new ArrayList<>();
@@ -59,16 +71,19 @@ public class BranchAndBound {
         }
     }
 
-    private List<Edge<Integer, Integer>> dfs(Node<Integer, Integer, Integer> nodoCorrente,
-                                             ArrayList<Edge<Integer, Integer>> cicloInterno) {
-        if (nodoCorrente.getKey().equals(nodoCandidato) && cicloInterno.size() > 0) {
-            return cicloInterno;
-        } else {
-            for (Edge<Integer, Integer> arcoIncidente : nodoCorrente.getEdges()) {
-                cicloInterno.add(arcoIncidente);
-                dfs(grafo.getNode(arcoIncidente.getTo()), cicloInterno);
+    private void dfs(Node<Integer, Integer, Integer> nodoCorrente , HashMap<Integer,Integer> vettorePadri, Graph<Integer,Integer,Integer> grafo) {
+
+        for(Edge<Integer, Integer> arcoUscente: nodoCorrente.getEdges()){
+            if(!vettorePadri.containsKey(arcoUscente.getTo())){
+                if(!vettorePadri.containsKey(nodoCorrente.getKey()) ||
+                        !vettorePadri.get(nodoCorrente.getKey()).equals(arcoUscente.getTo())){
+
+                    vettorePadri.put(arcoUscente.getTo(),nodoCorrente.getKey());
+                    dfs(Objects.requireNonNull(grafo.getNode(arcoUscente.getTo())),vettorePadri,grafo);
+                }
+
             }
-            return cicloInterno;
         }
+
     }
 }
