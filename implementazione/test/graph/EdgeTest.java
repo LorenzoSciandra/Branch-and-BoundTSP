@@ -48,4 +48,12 @@ public class EdgeTest {
         assertEquals(edge, new Edge<>(1, 2, 'a'));
         assertNotEquals(edge, new Edge<>(1, 2, 'b'));
     }
+
+    @Test
+    void isIncidentFor() {
+        assertTrue(edge.isIncidentFor(1));
+        assertTrue(edge.isIncidentFor(2));
+        assertFalse(edge.isIncidentFor(3));
+        assertFalse(edge.isIncidentFor(null));
+    }
 }

@@ -30,6 +30,10 @@ public class Edge<K, E> {
         return new Edge<>(to, from, label);
     }
 
+    public boolean isIncidentFor(K node){
+        return from.equals(node) || to.equals(node);
+    }
+
     @Override
     public String toString() {
         return "Edge{" +
