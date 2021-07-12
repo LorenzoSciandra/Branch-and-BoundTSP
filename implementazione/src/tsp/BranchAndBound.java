@@ -29,7 +29,7 @@ public class BranchAndBound {
         while (!subProblemQueue.isEmpty()) {
             SubProblem problemaCorrente = subProblemQueue.get(0);
             subProblemQueue.remove(0);
-            if (problemaCorrente.hasCicloHamiltoniano()) {
+            if (problemaCorrente.containsHamiltonianCycle()) {
                 if (minimumHamiltonianCycle.getCost() > problemaCorrente.getLowerBound()) {
                     minimumHamiltonianCycle.setCost(problemaCorrente.getLowerBound());
                     minimumHamiltonianCycle.setGraph(problemaCorrente.getOneTree());

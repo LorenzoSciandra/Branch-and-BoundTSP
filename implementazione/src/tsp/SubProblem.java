@@ -3,6 +3,7 @@ package tsp;
 import graph.exceptions.GraphNodeMissingException;
 import graph.structures.Edge;
 import graph.structures.Graph;
+import graph.structures.Node;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -38,8 +39,8 @@ public class SubProblem {
 
         // The sub-problems automatically evaluate themselves, in order to be ready for further branching.
         this.oneTree = compute1Tree();
-        this.lowerBound = costo1Tree();
-        this.containsHamiltonianCycle = controllaCiclo();
+        this.lowerBound = compute1TreeCost();
+        this.containsHamiltonianCycle = checkForHamiltonianCycle();
         this.feasible = oneTree.getNodes().size() == originalGraph.getNodes().size() &&
                         oneTree.getEdges().size() == originalGraph.getNodes().size();
     }
@@ -53,20 +54,20 @@ public class SubProblem {
                                                              mandatoryEdges,
                                                              forbiddenEdges).addNode(candidateNode);
 
-        List<Edge<Integer, Integer>> mandatoryEdgesIncidentOnCandidate = mandatoryEdges.stream()
-                                                                                       .filter((edge) -> edge.isIncidentFor(candidateNode))
-                                                                                       .collect(Collectors.toList());
-        List<Edge<Integer, Integer>> forbiddenEdgesIncidentOnCandidate = forbiddenEdges.stream()
-                                                                                       .filter((edge) -> edge.isIncidentFor(candidateNode))
-                                                                                       .collect(Collectors.toList());
+        List<Edge<Integer, Integer>> incidentMandatoryEdges = mandatoryEdges.stream()
+                                                                            .filter((edge) -> edge.isIncidentFor(candidateNode))
+                                                                            .collect(Collectors.toList());
+        List<Edge<Integer, Integer>> incidentForbiddenEdges = forbiddenEdges.stream()
+                                                                            .filter((edge) -> edge.isIncidentFor(candidateNode))
+                                                                            .collect(Collectors.toList());
 
         Edge<Integer, Integer> firstEdge = null, secondEdge = null;
-        if (mandatoryEdgesIncidentOnCandidate.size() >= 2) {
+        if (incidentMandatoryEdges.size() >= 2) {
             // Look for the two least expensive edges.
-            firstEdge = mandatoryEdgesIncidentOnCandidate.get(0);
-            secondEdge = mandatoryEdgesIncidentOnCandidate.get(1);
+            firstEdge = incidentMandatoryEdges.get(0);
+            secondEdge = incidentMandatoryEdges.get(1);
 
-            for (Edge<Integer, Integer> e : mandatoryEdgesIncidentOnCandidate) {
+            for (Edge<Integer, Integer> e : incidentMandatoryEdges) {
                 if (firstEdge.getLabel() < secondEdge.getLabel()) {
                     if (e.getLabel() < secondEdge.getLabel()) {
                         secondEdge = e;
@@ -77,20 +78,20 @@ public class SubProblem {
                     }
                 }
             }
-        } else if (mandatoryEdgesIncidentOnCandidate.size() == 1) {
-            firstEdge = mandatoryEdgesIncidentOnCandidate.get(0);
+        } else if (incidentMandatoryEdges.size() == 1) {
+            firstEdge = incidentMandatoryEdges.get(0);
 
             // Look for the cheapest edge that incides on candidateNode and that isn't forbidden.
             secondEdge = originalGraph.getEdges()
                                       .stream()
-                                      .filter((edge) -> !forbiddenEdgesIncidentOnCandidate.contains(edge) && edge.isIncidentFor(candidateNode))
+                                      .filter((edge) -> !incidentForbiddenEdges.contains(edge) && edge.isIncidentFor(candidateNode))
                                       .reduce(originalGraph.getEdges().get(0),
                                               (localMin, edge) -> edge.getLabel() < localMin.getLabel() ?
                                                   edge :
                                                   localMin);
         } else {
             for (Edge<Integer, Integer> edge : originalGraph.getEdges()) {
-                if (!forbiddenEdgesIncidentOnCandidate.contains(edge) && edge.isIncidentFor(candidateNode)) {
+                if (!incidentForbiddenEdges.contains(edge) && edge.isIncidentFor(candidateNode)) {
                     if (firstEdge == null) {
                         firstEdge = edge;
                     } else if (secondEdge == null) {
@@ -122,23 +123,18 @@ public class SubProblem {
         return mst;
     }
 
-    private int costo1Tree() {
-        int costo = 0;
-
-        for (Edge<Integer, Integer> arco : this.oneTree.getEdges()) {
-            costo = costo + arco.getLabel();
-        }
-        return costo;
+    private int compute1TreeCost() {
+        return this.oneTree.getEdges()
+                           .stream()
+                           .mapToInt(Edge::getLabel)
+                           .sum();
     }
 
-    private boolean controllaCiclo() {
-        boolean controllo = true;
-
-        for (int i = 0; i < oneTree.getNodes().size() && controllo; i++) {
-            controllo = oneTree.getNodes().get(i).getEdges().size() == 2;
-        }
-
-        return controllo;
+    private boolean checkForHamiltonianCycle() {
+        return oneTree.getNodes()
+                      .stream()
+                      .map(Node::edgesCount)
+                      .allMatch(degree -> degree == 2);
     }
 
     public Graph<Integer, Integer, Integer> getOriginalGraph() {
@@ -165,7 +161,7 @@ public class SubProblem {
         return lowerBound;
     }
 
-    public boolean hasCicloHamiltoniano() {
+    public boolean containsHamiltonianCycle() {
         return containsHamiltonianCycle;
     }
 
