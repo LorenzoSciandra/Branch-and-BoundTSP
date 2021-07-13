@@ -188,7 +188,7 @@ public class UndirectedGraphTest {
     @Test
     public void getEdges() {
         List<Edge<Integer, Character>> edges = graph.getEdges();
-        assertEquals(6, edges.size());
+        assertEquals(3, edges.size());
     }
 
     @Test

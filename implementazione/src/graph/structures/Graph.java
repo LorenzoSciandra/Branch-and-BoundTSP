@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
 
 public class Graph<K, V, E> implements Cloneable {
@@ -145,9 +146,42 @@ public class Graph<K, V, E> implements Cloneable {
     }
 
     public ArrayList<Edge<K, E>> getEdges() {
+        return getEdges(false);
+    }
+
+    /**
+     * Returns all edges of the graph.
+     *
+     * @param returnAllEdges set to true if ALL edges are needed (useful with undirected graphs if both copies of an
+     *                       edge are needed: (1,2) and (2,1) for example).
+     * @implNote If the graph is undirected, only one edge is returned (this graph implementation uses two directed
+     * edges for every undirected edge).
+     */
+    public ArrayList<Edge<K, E>> getEdges(boolean returnAllEdges) {
         ArrayList<Edge<K, E>> edges = new ArrayList<>();
-        for (Node<K, V, E> node : nodes.values()) {
-            edges.addAll(node.getEdges());
+        if (directed || returnAllEdges) {
+            for (Node<K, V, E> node : nodes.values()) {
+                edges.addAll(node.getEdges());
+            }
+        } else {
+            HashMap<K, HashSet<K>> edgesPresent = new HashMap<>();
+
+            // If the graph is undirected, an edge is sufficent; we don't need the inverse.
+            for (Node<K, V, E> node : nodes.values()) {
+                for (Edge<K, E> edge : node.getEdges()) {
+                    K fromNode = edge.getFrom();
+                    K toNode = edge.getTo();
+
+                    boolean inversePresent = edgesPresent.containsKey(toNode) &&
+                                             edgesPresent.get(toNode).contains(fromNode);
+
+                    if (!inversePresent) {
+                        HashSet<K> forwardStar = edgesPresent.computeIfAbsent(fromNode, k -> new HashSet<>());
+                        forwardStar.add(toNode);
+                        edges.add(edge);
+                    }
+                }
+            }
         }
         return edges;
     }
