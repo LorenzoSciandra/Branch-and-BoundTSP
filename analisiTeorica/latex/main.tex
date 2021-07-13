@@ -34,8 +34,10 @@
 \usepackage{nomencl} 			% Lista de simbolos
 \usepackage{color}				% Controle das cores
 \usepackage{graphicx}
+\usepackage{blkarray}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{subfig}
 \usepackage{mathtools}
 \usepackage{booktabs}
 \usepackage{hyperref}
@@ -330,4 +332,70 @@ Per quanto riguarda l'individuazione del sottociclo all'interno di un 1-tree che
 La procedura centrale per la risoluzione del TSP è firmata \textit{branchAndBoundTSP()} e restituisce la migliore istanza della classe \textit{CicloHamiltoniano}, ossia quella con costo minore. In caso in cui non vi fosse un ciclo hamiltoniano nel grafo di partenza verrebbe restituito il grafo originale. Questo metodo richiama gli algoritmi sopra descritti e molte altre procedure di supporto al fine di gestire una lista di \textit{SubProblem} e terminando l'esecuzione non appena quest'ultima viene completamente svuotata grazie alla chiusura di tutti i nodi. \'E qui che risiede tutta la complessità della risoluzione del TSP simmetrico, questo metodo infatti richiama sottoprocedure polinomiali in tempo, ma il numero di \textit{SubProblem} che deve gestire può essere esponenziale.
 \newline
 La gestione dell'insieme dei SubProblem ancora aperti è stata realizzata con una coda di priorità \textbf{min-heap}, ossia con una struttura dati che presenta complessità $O(1)$ per leggere l'elemento con lower bound minore e $O(log\:n)$ per estrarre ed aggiungere un elemento.
+
+\section{Esempio}
+Risolveremo in questo paragrafo un esercizio sul TSP simmetrico preso da una vecchia prova d'esame del corso di Ottimizzazione Combinatoria datata 10/06/2015.
+\newline
+L'istanza di grafo $G(V,E)$ è la seguente:
+\begin{equation*}
+    c_{ij}:
+    \begin{blockarray}{cccccc}
+        & 1 & 2 & 3 & 4 & 5 \\
+    \begin{block}{c(ccccc)}
+        1 & - & & & &  \\
+        2 & 5 & - & & &  \\
+        3 & 2 & 6 & - & &  \\
+        4 & 3 & 7 & 8 & - &  \\
+        5 & 8 & 10 & 2 & 1 & - \\
+    \end{block}
+    \end{blockarray}
+    \qquad\qquad \qquad
+    \vcenter{\hbox{\includegraphics[scale=0.33]{files/grafoEsempio.png}}}
+\end{equation*}
+Come nodo candidato scegliamo arbitrariamente il nodo $1$ e calcoliamo l'1-tree generando prima l'MST sui $V\setminus\{1\}$ vertici e poi aggiungendo i due archi ad esso incidenti di peso minimo. L'1-tree che otteniamo è il seguente:
+\begin{center}
+    \includegraphics[scale=0.33]{files/primo1Tree.png}
+    \qquad \qquad \qquad
+    \includegraphics[scale=0.4]{files/alberoBranch1.png}
+\end{center}
+Ci troviamo con un primo 1-tree che non è un circuito hamiltoniano e sul quale dobbiamo fare Branch. Il sottociclo che esso contiene è formato dai seguenti archi $\{(1,3),(3,5),(5,4),(4,1)\}$. Genereremo 4 figli così caratterizzati:
+\begin{enumerate}
+    \item [] \underline{Nodo 2}: $\:E_0 = \{(1,3)\}$ e $E_1 = \emptyset$;
+    \item [] \underline{Nodo 3}: $\:E_0 = \{(3,5)\}$ e $E_1 = \{(1,3)\}$;
+    \item [] \underline{Nodo 4}: $\:E_0 = \{(5,4)\}$ e $E_1 = \{(1,3),(3,5)\}$;
+    \item [] \underline{Nodo 5}: $\:E_0 = \{(4,1)\}$ e $E_1 = \{(1,3),(3,5),(5,4)\}$.
+\end{enumerate}
+Calcolando per ognuno dei nuovi nodi il corrispondente 1-tree abbiamo rispettivamente:
+\begin{center}
+    \includegraphics[scale=0.25]{files/secondo1Tree.png}
+    \qquad
+    \includegraphics[scale=0.25]{files/terzo1Tree.png}
+    \qquad
+    \includegraphics[scale=0.25]{files/quarto1Tree.png}
+    \qquad
+    \includegraphics[scale=0.25]{files/quinto1Tree.png}
+\end{center}
+Il nodo 2 viene chiuso per ottimalità in quanto presenta un circuito hamiltoniano di costo 17, che diventa la nostra prima soluzione. Il nodo 3 viene chiuso per Bound in quanto presenta un lower bound pari a 19, maggiore della nostra soluzione intera. Discorso analogo viene fatto per il nodo 4 con lower bound 20. Il nodo 5 rimane aperto dato che presenta lower bound 16 sul quale faremo branch. Il sottociclo che esso presenta è formato dagli archi $\{(1,2),(2,3),(3,1)\}$, scremato dagli archi in $E_1$ che devono essere presenti otteniamo $\{(1,2),(2,3)\}$.
+\newline
+L'albero di Branch aggiornato con queste nuove considerazioni risulta essere:
+\begin{center}
+    \includegraphics[scale=0.4]{files/alberoBranch2.png}
+\end{center}
+Dal nodo 5 genereremo 2 figli così caratterizzati:
+\begin{enumerate}
+    \item [] \underline{Nodo 6}: $\:E_0 = \{(4,1),(1,2)\}$ e $E_1 = \{(1,3),(3,5),(5,4)\}$;
+    \item [] \underline{Nodo 7}: $\:E_0 = \{(4,1),(2,3)\}$ e $E_1 = \{(1,3),(3,5),(5,4), (1,2)\}$.
+\end{enumerate}
+Calcolando per ognuno dei nuovi nodi il corrispondente 1-tree abbiamo rispettivamente:
+\begin{center}
+    \includegraphics[scale=0.33]{files/sesto1Tree.png}
+    \qquad
+    \qquad
+    \includegraphics[scale=0.33]{files/settimo1Tree.png}
+\end{center}
+Il nodo 6 viene chiuso per bound, dato che ci garantisce un lower bound pari a 19, contro il costo 17 del nostro ottimo attuale. Il nodo 7 viene invece chiuso per ottimalità dato che presenta un circuito hamiltoniano con costo 17, uguale al nostro ottimo attuale che quindi non viene aggiornato. L'albero di Branch finale risulta:
+\begin{center}
+    \includegraphics[scale=0.4]{files/alberoBranch3.png}
+\end{center}
+Il TSP simmetrico presenta come ottimo due possibili circuiti hamiltoniani di ugual costo: $\{(1,2),(2,3),(3,5),(5,4),(4,1)\}$ e $\{(1,2),(2,4),(4,5),(5,3),(3,1)\}$.
 \end{document}
