@@ -12,6 +12,26 @@ import java.util.PriorityQueue;
 
 public class BranchAndBound {
 
+    public static void main(String[] args) {
+        Graph<Integer, Integer, Integer> graph = new Graph<>(false);
+        graph.addNodesEdge(1, 2, 5)
+             .addNodesEdge(1, 3, 8)
+             .addNodesEdge(1, 4, 3)
+             .addNodesEdge(1, 5, 5)
+             .addNodesEdge(2, 3, 4)
+             .addNodesEdge(2, 4, 6)
+             .addNodesEdge(2, 5, 2)
+             .addNodesEdge(3, 4, 10)
+             .addNodesEdge(3, 5, 3)
+             .addNodesEdge(4, 5, 1);
+
+        BranchAndBound bnb = new BranchAndBound(graph, 1);
+        HamiltonianCycle cycle = bnb.solveProblem();
+
+        System.out.printf("Costo: %d\n", cycle.getCost());
+        System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
+    }
+
     // todo convert to priority queue
     public PriorityQueue<SubProblem> subProblemQueue;
     public Graph<Integer, Integer, Integer> graph;
