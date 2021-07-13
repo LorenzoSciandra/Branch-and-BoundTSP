@@ -60,18 +60,20 @@ public class BranchAndBound {
             toNode = fromNode;
         }
 
-        ArrayList<Edge<Integer, Integer>> mandatoryEdges = new ArrayList<>();
-        ArrayList<Edge<Integer, Integer>> forbiddenEdges = new ArrayList<>();
+        ArrayList<Edge<Integer, Integer>> mandatoryEdges = currentProblem.getMandatoryEdges();
+        ArrayList<Edge<Integer, Integer>> forbiddenEdges = currentProblem.getForbiddenEdges();
 
         for (Edge<Integer, Integer> integerIntegerEdge : subCycle) {
-            forbiddenEdges.add(integerIntegerEdge);
-            SubProblem sp = new SubProblem(graph,
-                                           ((List<Edge<Integer, Integer>>) forbiddenEdges.clone()),
-                                           ((List<Edge<Integer, Integer>>) mandatoryEdges.clone()),
-                                           candidateNode);
-            subProblemQueue.add(sp);
-            forbiddenEdges.remove(0);
-            mandatoryEdges.add(integerIntegerEdge);
+            if(!currentProblem.getMandatoryEdges().contains(integerIntegerEdge)){
+                forbiddenEdges.add(integerIntegerEdge);
+                SubProblem sp = new SubProblem(graph,
+                        ((ArrayList<Edge<Integer, Integer>>) forbiddenEdges.clone()),
+                        ((ArrayList<Edge<Integer, Integer>>) mandatoryEdges.clone()),
+                        candidateNode);
+                subProblemQueue.add(sp);
+                forbiddenEdges.remove(integerIntegerEdge);
+                mandatoryEdges.add(integerIntegerEdge);
+            }
         }
     }
 

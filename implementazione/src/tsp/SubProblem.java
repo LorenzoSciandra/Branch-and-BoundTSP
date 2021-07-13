@@ -16,8 +16,8 @@ import static graph.MinimumSpanningTree.kruskalForTSP;
 public class SubProblem implements Comparable<SubProblem>{
 
     private Graph<Integer, Integer, Integer> originalGraph;
-    private List<Edge<Integer, Integer>> mandatoryEdges;
-    private List<Edge<Integer, Integer>> forbiddenEdges;
+    private ArrayList<Edge<Integer, Integer>> mandatoryEdges;
+    private ArrayList<Edge<Integer, Integer>> forbiddenEdges;
     private Integer candidateNode;
     private Graph<Integer, Integer, Integer> oneTree;
     private int lowerBound;
@@ -29,8 +29,8 @@ public class SubProblem implements Comparable<SubProblem>{
     }
 
     public SubProblem(@NotNull Graph<Integer, Integer, Integer> originalGraph,
-                      List<Edge<Integer, Integer>> mandatoryEdges,
-                      List<Edge<Integer, Integer>> forbiddenEdges,
+                      ArrayList<Edge<Integer, Integer>> mandatoryEdges,
+                      ArrayList<Edge<Integer, Integer>> forbiddenEdges,
                       Integer candidateNode) {
         this.mandatoryEdges = mandatoryEdges;
         this.forbiddenEdges = forbiddenEdges;
@@ -141,11 +141,11 @@ public class SubProblem implements Comparable<SubProblem>{
         return originalGraph;
     }
 
-    public List<Edge<Integer, Integer>> getMandatoryEdges() {
+    public ArrayList<Edge<Integer, Integer>> getMandatoryEdges() {
         return mandatoryEdges;
     }
 
-    public List<Edge<Integer, Integer>> getForbiddenEdges() {
+    public ArrayList<Edge<Integer, Integer>> getForbiddenEdges() {
         return forbiddenEdges;
     }
 
