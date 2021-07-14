@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static graph.MinimumSpanningTree.kruskalForTSP;
 
-public class SubProblem implements Comparable<SubProblem>{
+public class SubProblem implements Comparable<SubProblem> {
 
     private Graph<Integer, Integer, Integer> originalGraph;
     private ArrayList<Edge<Integer, Integer>> mandatoryEdges;
@@ -48,10 +48,10 @@ public class SubProblem implements Comparable<SubProblem>{
     private @NotNull Graph<Integer, Integer, Integer> compute1Tree() {
         // Calculate the minimum spanning tree with the original graph minus the candidateNode.
         // Then, add it back.
-        ArrayList<Edge<Integer,Integer>> realMandatory = (ArrayList<Edge<Integer, Integer>>) mandatoryEdges.clone();
+        ArrayList<Edge<Integer, Integer>> realMandatory = (ArrayList<Edge<Integer, Integer>>) mandatoryEdges.clone();
 
-        for(Edge<Integer,Integer> mandatory: mandatoryEdges){
-            if(mandatory.getTo().equals(candidateNode) || mandatory.getFrom().equals(candidateNode)){
+        for (Edge<Integer, Integer> mandatory : mandatoryEdges) {
+            if (mandatory.getTo().equals(candidateNode) || mandatory.getFrom().equals(candidateNode)) {
                 realMandatory.remove(mandatory);
             }
         }
@@ -73,21 +73,19 @@ public class SubProblem implements Comparable<SubProblem>{
         Edge<Integer, Integer> firstEdge = null, secondEdge = null;
         if (incidentMandatoryEdges.size() >= 2) {
             // Look for the two least expensive edges.
-            for (Edge<Integer, Integer> e : incidentMandatoryEdges) {
-                if(firstEdge == null){
-                    firstEdge = e;
-                }
-                else if(secondEdge == null){
-                    secondEdge = e;
-                }
-                else {
+            for (Edge<Integer, Integer> edge : incidentMandatoryEdges) {
+                if (firstEdge == null) {
+                    firstEdge = edge;
+                } else if (secondEdge == null) {
+                    secondEdge = edge;
+                } else {
                     if (firstEdge.getLabel() < secondEdge.getLabel()) {
-                        if (e.getLabel() < secondEdge.getLabel()) {
-                            secondEdge = e;
+                        if (edge.getLabel() < secondEdge.getLabel()) {
+                            secondEdge = edge;
                         }
                     } else {
-                        if (e.getLabel() < firstEdge.getLabel()) {
-                            firstEdge = e;
+                        if (edge.getLabel() < firstEdge.getLabel()) {
+                            firstEdge = edge;
                         }
                     }
                 }
@@ -99,8 +97,8 @@ public class SubProblem implements Comparable<SubProblem>{
                 if (!incidentForbiddenEdges.contains(edge) && edge.isIncidentFor(candidateNode) && !firstEdge.equals(edge)) {
                     if (secondEdge == null) {
                         secondEdge = edge;
-                       // System.out.println("Arco trovato:" + edge.getFrom() + " " + edge.getTo() + "\n");
-                    } else if (secondEdge.getLabel() > edge.getLabel()){
+                        // System.out.println("Arco trovato:" + edge.getFrom() + " " + edge.getTo() + "\n");
+                    } else if (secondEdge.getLabel() > edge.getLabel()) {
                         secondEdge = edge;
                         //System.out.println("Arco aggiornato:" + edge.getFrom() + " " + edge.getTo() + "\n");
                     }
