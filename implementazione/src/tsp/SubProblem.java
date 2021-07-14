@@ -48,10 +48,19 @@ public class SubProblem implements Comparable<SubProblem>{
     private @NotNull Graph<Integer, Integer, Integer> compute1Tree() {
         // Calculate the minimum spanning tree with the original graph minus the candidateNode.
         // Then, add it back.
+        ArrayList<Edge<Integer,Integer>> realMandatory = (ArrayList<Edge<Integer, Integer>>) mandatoryEdges.clone();
+
+        for(Edge<Integer,Integer> mandatory: mandatoryEdges){
+            if(mandatory.getTo().equals(candidateNode) || mandatory.getFrom().equals(candidateNode)){
+                realMandatory.remove(mandatory);
+            }
+        }
+
+
         Graph<Integer, Integer, Integer> mst = kruskalForTSP(originalGraph.clone()
                                                                           .removeNode(candidateNode),
                                                              ComparatorIntegerEdge.getInstance(),
-                                                             mandatoryEdges,
+                                                             realMandatory,
                                                              forbiddenEdges).addNode(candidateNode);
 
         List<Edge<Integer, Integer>> incidentMandatoryEdges = mandatoryEdges.stream()
@@ -64,31 +73,40 @@ public class SubProblem implements Comparable<SubProblem>{
         Edge<Integer, Integer> firstEdge = null, secondEdge = null;
         if (incidentMandatoryEdges.size() >= 2) {
             // Look for the two least expensive edges.
-            firstEdge = incidentMandatoryEdges.get(0);
-            secondEdge = incidentMandatoryEdges.get(1);
-
             for (Edge<Integer, Integer> e : incidentMandatoryEdges) {
-                if (firstEdge.getLabel() < secondEdge.getLabel()) {
-                    if (e.getLabel() < secondEdge.getLabel()) {
-                        secondEdge = e;
-                    }
-                } else {
-                    if (e.getLabel() < firstEdge.getLabel()) {
-                        firstEdge = e;
+                if(firstEdge == null){
+                    firstEdge = e;
+                }
+                else if(secondEdge == null){
+                    secondEdge = e;
+                }
+                else {
+                    if (firstEdge.getLabel() < secondEdge.getLabel()) {
+                        if (e.getLabel() < secondEdge.getLabel()) {
+                            secondEdge = e;
+                        }
+                    } else {
+                        if (e.getLabel() < firstEdge.getLabel()) {
+                            firstEdge = e;
+                        }
                     }
                 }
             }
         } else if (incidentMandatoryEdges.size() == 1) {
             firstEdge = incidentMandatoryEdges.get(0);
 
-            // Look for the cheapest edge that incides on candidateNode and that isn't forbidden.
-            secondEdge = originalGraph.getEdges()
-                                      .stream()
-                                      .filter((edge) -> !incidentForbiddenEdges.contains(edge) && edge.isIncidentFor(candidateNode))
-                                      .reduce(originalGraph.getEdges().get(0),
-                                              (localMin, edge) -> edge.getLabel() < localMin.getLabel() ?
-                                                  edge :
-                                                  localMin);
+            for (Edge<Integer, Integer> edge : originalGraph.getEdges()) {
+                if (!incidentForbiddenEdges.contains(edge) && edge.isIncidentFor(candidateNode) && !firstEdge.equals(edge)) {
+                    if (secondEdge == null) {
+                        secondEdge = edge;
+                       // System.out.println("Arco trovato:" + edge.getFrom() + " " + edge.getTo() + "\n");
+                    } else if (secondEdge.getLabel() > edge.getLabel()){
+                        secondEdge = edge;
+                        //System.out.println("Arco aggiornato:" + edge.getFrom() + " " + edge.getTo() + "\n");
+                    }
+                }
+            }
+
         } else {
             for (Edge<Integer, Integer> edge : originalGraph.getEdges()) {
                 if (!incidentForbiddenEdges.contains(edge) && edge.isIncidentFor(candidateNode)) {

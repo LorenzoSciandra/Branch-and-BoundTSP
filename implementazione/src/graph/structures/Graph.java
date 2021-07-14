@@ -278,4 +278,14 @@ public class Graph<K, V, E> implements Cloneable {
     public int hashCode() {
         return Objects.hash(nodes, directed);
     }
+
+    public String toString(){
+        StringBuilder r = new StringBuilder();
+
+        for (Edge<K,E> edge: getEdges()) {
+            r.append(" ").append(edge.getFrom()).append(" ").append(edge.getTo()).append("\n");
+        }
+
+        return r.toString();
+    }
 }

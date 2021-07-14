@@ -188,7 +188,40 @@ public class MinimumSpanningTreeTest {
                                                                                 new ArrayList<>(0),
                                                                                 List.of(new Edge<>("B", "E", 7)));
 
+        assertTrue(mst3.containsEdge("A", "B"));
+        assertTrue(mst3.containsEdge("A", "D"));
+        assertTrue(mst3.containsEdge("B", "C") || mst3.containsEdge("E","F"));
+        assertTrue(mst3.containsEdge("C", "E"));
+        assertTrue(mst3.containsEdge("D", "F"));
+        assertTrue(mst3.containsEdge("E", "G"));
+
         assertFalse(mst3.containsEdge("B", "E"));
+
+
+        List<Edge<String,Integer>> mandatoryEdges = new ArrayList<>();
+        List<Edge<String,Integer>> forbiddenEdges = new ArrayList<>();
+
+        forbiddenEdges.add(new Edge<>("A","D",5));
+        forbiddenEdges.add(new Edge<>("C","E",5));
+        forbiddenEdges.add(new Edge<>("B","E",7));
+        mandatoryEdges.add(new Edge<>("D","E",15));
+        mandatoryEdges.add(new Edge<>("F","G",11));
+
+        Graph<String, String, Integer> mst4 = MinimumSpanningTree.kruskalForTSP(initGraph(),
+                                                                                new ComparatorEdgeStringInteger(),
+                                                                                mandatoryEdges,
+                                                                                forbiddenEdges);
+
+        assertTrue(mst4.containsEdge("A", "B"));
+        assertTrue(mst4.containsEdge("B", "D"));
+        assertTrue(mst4.containsEdge("B", "C") );
+        assertTrue(mst4.containsEdge("D", "E"));
+        assertTrue(mst4.containsEdge("D", "F"));
+        assertTrue(mst4.containsEdge("F", "G"));
+
+        assertFalse(mst4.containsEdge("A", "D"));
+        assertFalse(mst4.containsEdge("C", "E"));
+        assertFalse(mst4.containsEdge("B", "E"));
     }
 
     /**

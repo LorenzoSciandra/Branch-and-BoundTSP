@@ -87,8 +87,8 @@ public class BranchAndBound {
             if(!currentProblem.getMandatoryEdges().contains(integerIntegerEdge)){
                 forbiddenEdges.add(integerIntegerEdge);
                 SubProblem sp = new SubProblem(graph,
-                        ((ArrayList<Edge<Integer, Integer>>) forbiddenEdges.clone()),
-                        ((ArrayList<Edge<Integer, Integer>>) mandatoryEdges.clone()),
+                         forbiddenEdges,
+                         mandatoryEdges,
                         candidateNode);
                 subProblemQueue.add(sp);
                 forbiddenEdges.remove(integerIntegerEdge);
