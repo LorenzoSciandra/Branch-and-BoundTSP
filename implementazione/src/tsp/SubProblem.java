@@ -189,7 +189,16 @@ public class SubProblem implements Comparable<SubProblem>{
 
     @Override
     public int compareTo(@NotNull SubProblem o) {
-        return Integer.compare(this.lowerBound, o.lowerBound);
+        int comparisonResult = Integer.compare(this.lowerBound, o.lowerBound);
+        if (comparisonResult == 0) {
+            if (this.containsHamiltonianCycle) {
+                return -1;
+            } else {
+                return 1;
+            }
+        } else {
+            return comparisonResult;
+        }
     }
 
     private static class ComparatorIntegerEdge implements Comparator<Edge<Integer, Integer>> {
