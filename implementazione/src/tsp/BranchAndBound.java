@@ -50,6 +50,7 @@ public class BranchAndBound {
 
         while (!subProblemQueue.isEmpty()) {
             SubProblem currentProblem = subProblemQueue.remove();
+            // System.out.printf("%d %d\n", minHamiltonianCycle.getCost(), currentProblem.getLowerBound());
             if (currentProblem.containsHamiltonianCycle()) {
                 if (minHamiltonianCycle.getCost() > currentProblem.getLowerBound()) {
                     // found better solution! Closing because candidate solution.
@@ -87,8 +88,8 @@ public class BranchAndBound {
             if(!currentProblem.getMandatoryEdges().contains(integerIntegerEdge)){
                 forbiddenEdges.add(integerIntegerEdge);
                 SubProblem sp = new SubProblem(graph,
-                         forbiddenEdges,
-                         mandatoryEdges,
+                         new ArrayList<>(forbiddenEdges),
+                         new ArrayList<>(mandatoryEdges),
                         candidateNode);
                 subProblemQueue.add(sp);
                 forbiddenEdges.remove(integerIntegerEdge);
