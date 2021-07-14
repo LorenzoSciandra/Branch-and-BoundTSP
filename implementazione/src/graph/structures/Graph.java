@@ -283,7 +283,7 @@ public class Graph<K, V, E> implements Cloneable {
         StringBuilder r = new StringBuilder();
 
         for (Edge<K,E> edge: getEdges()) {
-            r.append(" ").append(edge.getFrom()).append(" ").append(edge.getTo()).append("\n");
+            r.append("(").append(edge.getFrom()).append(", ").append(edge.getTo()).append(")   ");
         }
 
         return r.toString();

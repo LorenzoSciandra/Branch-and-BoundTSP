@@ -94,10 +94,10 @@ public class SubProblem implements Comparable<SubProblem> {
             firstEdge = incidentMandatoryEdges.get(0);
 
             for (Edge<Integer, Integer> edge : originalGraph.getEdges()) {
-                if (!incidentForbiddenEdges.contains(edge) && edge.isIncidentFor(candidateNode) && !firstEdge.equals(edge)) {
+                if (!(incidentForbiddenEdges.contains(edge) || incidentForbiddenEdges.contains(edge.inverse()))  && (edge.isIncidentFor(candidateNode)) && (!(firstEdge.equals(edge)||firstEdge.inverse().equals(edge)))) {
                     if (secondEdge == null) {
                         secondEdge = edge;
-                        // System.out.println("Arco trovato:" + edge.getFrom() + " " + edge.getTo() + "\n");
+                         //System.out.println("Arco trovato:" + edge.getFrom() + " " + edge.getTo() + "\n");
                     } else if (secondEdge.getLabel() > edge.getLabel()) {
                         secondEdge = edge;
                         //System.out.println("Arco aggiornato:" + edge.getFrom() + " " + edge.getTo() + "\n");
@@ -107,7 +107,7 @@ public class SubProblem implements Comparable<SubProblem> {
 
         } else {
             for (Edge<Integer, Integer> edge : originalGraph.getEdges()) {
-                if (!incidentForbiddenEdges.contains(edge) && edge.isIncidentFor(candidateNode)) {
+                if (!(incidentForbiddenEdges.contains(edge) || incidentForbiddenEdges.contains(edge.inverse()))  && edge.isIncidentFor(candidateNode)) {
                     if (firstEdge == null) {
                         firstEdge = edge;
                     } else if (secondEdge == null) {
@@ -216,4 +216,13 @@ public class SubProblem implements Comparable<SubProblem> {
             return o1.getLabel().compareTo(o2.getLabel());
         }
     }
+
+    public String toString(){
+        String s = getOneTree().toString();
+        s = s + "\n costo: " + getLowerBound();
+        s = s + "\n Archi forzati: " + getMandatoryEdges().toString();
+        s = s + "\n Archi vietati: " + getForbiddenEdges().toString();
+        return s;
+    }
+
 }
