@@ -8,16 +8,16 @@ public class BranchAndBoundTest {
     @Test
     public void esempioPDFGrosso() throws Exception {
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
-        graph.addNodesEdge(1, 2, 5)
-                .addNodesEdge(1, 3, 8)
-                .addNodesEdge(1, 4, 3)
-                .addNodesEdge(1, 5, 5)
-                .addNodesEdge(2, 3, 4)
-                .addNodesEdge(2, 4, 6)
-                .addNodesEdge(2, 5, 2)
-                .addNodesEdge(3, 4, 10)
-                .addNodesEdge(3, 5, 3)
-                .addNodesEdge(4, 5, 1);
+        graph.addNodesEdge(1, 2, 5);
+        graph.addNodesEdge(1, 3, 8);
+        graph.addNodesEdge(1, 4, 3);
+        graph.addNodesEdge(1, 5, 5);
+        graph.addNodesEdge(2, 3, 4);
+        graph.addNodesEdge(2, 4, 6);
+        graph.addNodesEdge(2, 5, 2);
+        graph.addNodesEdge(3, 4, 10);
+        graph.addNodesEdge(3, 5, 3);
+        graph.addNodesEdge(4, 5, 1);
 
         BranchAndBound bnb = new BranchAndBound(graph, 1);
         long time1 = System.currentTimeMillis();

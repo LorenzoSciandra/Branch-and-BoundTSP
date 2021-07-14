@@ -73,26 +73,20 @@ public class BranchAndBound {
 
         while (fromNode != candidateNode) {
             fromNode = parentsVector.get(toNode);
-            if(currentProblem.getOneTree().containsEdge(fromNode, toNode)){
-                subCycle.add(currentProblem.getOneTree().getEdge(fromNode, toNode));
-                //System.out.print("(" + fromNode + ", " + toNode + ") ");
-            }
-            else{
-                subCycle.add(currentProblem.getOneTree().getEdge(toNode,fromNode));
-                //System.out.print("(" + toNode + ", " + fromNode + ") ");
-            }
-
+            subCycle.add(currentProblem.getOneTree().getEdge(fromNode, toNode));
+            //System.out.print("(" + fromNode + ", " + toNode + ") ");
             toNode = fromNode;
         }
 
-       // System.out.println("\n");
+        //System.out.println("\n");
 
 
         ArrayList<Edge<Integer, Integer>> mandatoryEdges = currentProblem.getMandatoryEdges();
         ArrayList<Edge<Integer, Integer>> forbiddenEdges = currentProblem.getForbiddenEdges();
 
         for (Edge<Integer, Integer> integerIntegerEdge : subCycle) {
-            if(!currentProblem.getMandatoryEdges().contains(integerIntegerEdge)){
+            if(!(currentProblem.getMandatoryEdges().contains(integerIntegerEdge) ||
+                    currentProblem.getMandatoryEdges().contains(integerIntegerEdge.inverse()))){
                 forbiddenEdges.add(integerIntegerEdge);
                 //System.out.println("Arco vietato: " + forbiddenEdges + "\n");
                 SubProblem sp = new SubProblem(graph,
@@ -104,8 +98,8 @@ public class BranchAndBound {
                 System.out.println("Figlio generato: " + sp.getOneTree().toString() + " costo: " + sp.getLowerBound() + " ciclo: " + sp.containsHamiltonianCycle());
                 System.out.println("Archi forzati: " + sp.getMandatoryEdges().toString());
                 System.out.println("Archi vietati: " + sp.getForbiddenEdges().toString());
-                System.out.println("\n\n");*/
-
+                System.out.println("\n\n");
+                */
                 forbiddenEdges.remove(integerIntegerEdge);
                 mandatoryEdges.add(integerIntegerEdge);
             }
