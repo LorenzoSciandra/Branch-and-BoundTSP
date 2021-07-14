@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.PriorityQueue;
 
 public class BranchAndBound {
@@ -32,7 +31,9 @@ public class BranchAndBound {
             SubProblem currentProblem = subProblemQueue.remove();
 
             /*
-            System.out.println("Nodo corrente: " + currentProblem.getOneTree().toString() + " costo: " + currentProblem.getLowerBound() + " ciclo: " + currentProblem.containsHamiltonianCycle() + " ammissibile: " + currentProblem.isFeasible());
+            System.out.println("Nodo corrente: " + currentProblem.getOneTree().toString() + " costo: " +
+            currentProblem.getLowerBound() + " ciclo: " + currentProblem.containsHamiltonianCycle() + " ammissibile:
+            " + currentProblem.isFeasible());
             System.out.println("Archi forzati: " + currentProblem.getMandatoryEdges().toString());
             System.out.println("Archi vietati: " + currentProblem.getForbiddenEdges().toString());
             System.out.println("\n\n");
@@ -42,7 +43,7 @@ public class BranchAndBound {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }*/
-            if(currentProblem.isFeasible()) {
+            if (currentProblem.isFeasible()) {
                 if (currentProblem.containsHamiltonianCycle()) {
                     if (minHamiltonianCycle.getCost() > currentProblem.getLowerBound()) {
                         // found better solution! Closing because candidate solution.
@@ -85,17 +86,18 @@ public class BranchAndBound {
         ArrayList<Edge<Integer, Integer>> forbiddenEdges = currentProblem.getForbiddenEdges();
 
         for (Edge<Integer, Integer> integerIntegerEdge : subCycle) {
-            if(!(currentProblem.getMandatoryEdges().contains(integerIntegerEdge) ||
-                    currentProblem.getMandatoryEdges().contains(integerIntegerEdge.inverse()))){
+            if (!(currentProblem.getMandatoryEdges().contains(integerIntegerEdge) ||
+                  currentProblem.getMandatoryEdges().contains(integerIntegerEdge.inverse()))) {
                 forbiddenEdges.add(integerIntegerEdge);
                 //System.out.println("Arco vietato: " + forbiddenEdges + "\n");
                 SubProblem sp = new SubProblem(graph,
-                        (ArrayList<Edge<Integer, Integer>>) mandatoryEdges.clone(),
-                        (ArrayList<Edge<Integer, Integer>>) forbiddenEdges.clone(),
-                        candidateNode);
+                                               new ArrayList<>(mandatoryEdges),
+                                               new ArrayList<>(forbiddenEdges),
+                                               candidateNode);
                 subProblemQueue.add(sp);
                 /*
-                System.out.println("Figlio generato: " + sp.getOneTree().toString() + " costo: " + sp.getLowerBound() + " ciclo: " + sp.containsHamiltonianCycle());
+                System.out.println("Figlio generato: " + sp.getOneTree().toString() + " costo: " + sp.getLowerBound()
+                 + " ciclo: " + sp.containsHamiltonianCycle());
                 System.out.println("Archi forzati: " + sp.getMandatoryEdges().toString());
                 System.out.println("Archi vietati: " + sp.getForbiddenEdges().toString());
                 System.out.println("\n\n");
