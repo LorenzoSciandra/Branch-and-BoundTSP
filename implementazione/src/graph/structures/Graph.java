@@ -35,8 +35,7 @@ public class Graph<K, V, E> implements Cloneable {
     }
 
     public Graph<K, V, E> addNode(@NotNull K key) {
-        addNode(key, null);
-        return this;
+        return addNode(key, null);
     }
 
     public Graph<K, V, E> addNode(@NotNull K key, @Nullable V value) {
