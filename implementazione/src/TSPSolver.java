@@ -1,9 +1,10 @@
 import graph.structures.Graph;
+import org.jetbrains.annotations.NotNull;
 import tsp.BranchAndBound;
 import tsp.HamiltonianCycle;
+import tsp.UnsolvableProblemException;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,10 +16,38 @@ public class TSPSolver {
             System.exit(1);
         }
 
-        File graphFile = new File(args[0]);
+        Graph<Integer, Integer, Integer> graph = loadGraph(args[0]);
+
+        boolean removeInvalidNodes = Boolean.parseBoolean(args[1]);
+
+        BranchAndBound bnb = new BranchAndBound(graph, graph.getNodes().get(0).getKey());
+
+        long time1 = System.currentTimeMillis();
+
+        HamiltonianCycle cycle = null;
+        try {
+            cycle = bnb.solveProblem(removeInvalidNodes);
+        } catch (UnsolvableProblemException e) {
+            System.err.println("Some nodes have only one incident edge. Terminating.");
+            System.err.println(e.oneWayNodesKeys.toString());
+            System.exit(1);
+        }
+
+        long time = System.currentTimeMillis() - time1;
+
+        System.out.printf("Costo: %d\n", cycle.getCost());
+        System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
+
+        System.out.println("Tempo d'esecuzione: " + time + " millisecondi");
+
+    }
+
+    @NotNull
+    private static Graph<Integer, Integer, Integer> loadGraph(String pathToFile) throws IOException {
+        File graphFile = new File(pathToFile);
 
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
-        Pattern edgePattern = Pattern.compile("([0-9]+) ([0-9]+) ([0-9.]+)");
+        Pattern edgePattern = Pattern.compile("([0-9]+)[ ,]+([0-9]+)[ ,]+([0-9.]+)");
 
         try (BufferedReader lineReader = new BufferedReader(new FileReader(graphFile))) {
             Iterator<String> lineIterator = lineReader.lines().iterator();
@@ -52,16 +81,6 @@ public class TSPSolver {
             System.exit(1);
         }
 
-        BranchAndBound bnb = new BranchAndBound(graph, graph.getNodes().get(0).getKey());
-
-        long time1 = System.currentTimeMillis();
-        HamiltonianCycle cycle = bnb.solveProblem();
-        long time = System.currentTimeMillis() - time1;
-
-        System.out.printf("Costo: %d\n", cycle.getCost());
-        System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
-
-        System.out.println("Tempo d'esecuzione: " + time + " millisecondi");
-
+        return graph;
     }
 }

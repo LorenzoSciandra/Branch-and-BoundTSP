@@ -21,7 +21,25 @@ public class BranchAndBound {
         this.candidateNode = candidateNode;
     }
 
-    public HamiltonianCycle solveProblem() {
+    public HamiltonianCycle solveProblem() throws UnsolvableProblemException {
+        return solveProblem(false);
+    }
+
+    public HamiltonianCycle solveProblem(boolean ignoreOneWayNodes) throws UnsolvableProblemException {
+        List<Integer> oneWayNodesKeys = graph.getNodes()
+                                             .stream()
+                                             .filter(node -> node.getDegree() < 2)
+                                             .map(Node::getKey)
+                                             .collect(Collectors.toUnmodifiableList());
+        if (oneWayNodesKeys.size() > 0) {
+            if (ignoreOneWayNodes) {
+                oneWayNodesKeys.forEach(graph::removeNode);
+                System.out.printf("Removing %d nodes.\n", oneWayNodesKeys.size());
+            } else {
+                throw new UnsolvableProblemException(oneWayNodesKeys);
+            }
+        }
+
         SubProblem rootProblem = new SubProblem(graph, new ArrayList<>(), new ArrayList<>(), candidateNode);
         subProblemQueue.add(rootProblem);
         HamiltonianCycle minHamiltonianCycle = new HamiltonianCycle(graph, Integer.MAX_VALUE);
