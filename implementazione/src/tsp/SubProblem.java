@@ -70,44 +70,11 @@ public class SubProblem implements Comparable<SubProblem> {
                                                                             .filter((edge) -> edge.isIncidentFor(candidateNode))
                                                                             .collect(Collectors.toList());
 
-        Edge<Integer, Integer> firstEdge = null, secondEdge = null;
-        if (incidentMandatoryEdges.size() >= 2) {
-            // Look for the two least expensive edges.
-            for (Edge<Integer, Integer> edge : incidentMandatoryEdges) {
-                if (firstEdge == null) {
-                    firstEdge = edge;
-                } else if (secondEdge == null) {
-                    secondEdge = edge;
-                } else {
-                    if (firstEdge.getLabel() < secondEdge.getLabel()) {
-                        if (edge.getLabel() < secondEdge.getLabel()) {
-                            secondEdge = edge;
-                        }
-                    } else {
-                        if (edge.getLabel() < firstEdge.getLabel()) {
-                            firstEdge = edge;
-                        }
-                    }
-                }
-            }
-        } else if (incidentMandatoryEdges.size() == 1) {
-            firstEdge = incidentMandatoryEdges.get(0);
-
-            for (Edge<Integer, Integer> edge : originalGraph.getEdges()) {
-                if (!(incidentForbiddenEdges.contains(edge) || incidentForbiddenEdges.contains(edge.inverse()))  && (edge.isIncidentFor(candidateNode)) && (!(firstEdge.equals(edge)||firstEdge.inverse().equals(edge)))) {
-                    if (secondEdge == null) {
-                        secondEdge = edge;
-                         //System.out.println("Arco trovato:" + edge.getFrom() + " " + edge.getTo() + "\n");
-                    } else if (secondEdge.getLabel() > edge.getLabel()) {
-                        secondEdge = edge;
-                        //System.out.println("Arco aggiornato:" + edge.getFrom() + " " + edge.getTo() + "\n");
-                    }
-                }
-            }
-
-        } else {
-            for (Edge<Integer, Integer> edge : originalGraph.getEdges()) {
-                if (!(incidentForbiddenEdges.contains(edge) || incidentForbiddenEdges.contains(edge.inverse()))  && edge.isIncidentFor(candidateNode)) {
+        if (mst.getNodes().size() == originalGraph.getNodes().size()) {
+            Edge<Integer, Integer> firstEdge = null, secondEdge = null;
+            if (incidentMandatoryEdges.size() >= 2) {
+                // Look for the two least expensive edges.
+                for (Edge<Integer, Integer> edge : incidentMandatoryEdges) {
                     if (firstEdge == null) {
                         firstEdge = edge;
                     } else if (secondEdge == null) {
@@ -122,17 +89,53 @@ public class SubProblem implements Comparable<SubProblem> {
                                 firstEdge = edge;
                             }
                         }
+                    }
+                }
+            } else if (incidentMandatoryEdges.size() == 1) {
+                firstEdge = incidentMandatoryEdges.get(0);
 
+                for (Edge<Integer, Integer> edge : originalGraph.getEdges()) {
+                    if (!(incidentForbiddenEdges.contains(edge) || incidentForbiddenEdges.contains(edge.inverse())) && (edge.isIncidentFor(candidateNode)) && (!(firstEdge.equals(edge) || firstEdge.inverse().equals(edge)))) {
+                        if (secondEdge == null) {
+                            secondEdge = edge;
+                            //System.out.println("Arco trovato:" + edge.getFrom() + " " + edge.getTo() + "\n");
+                        } else if (secondEdge.getLabel() > edge.getLabel()) {
+                            secondEdge = edge;
+                            //System.out.println("Arco aggiornato:" + edge.getFrom() + " " + edge.getTo() + "\n");
+                        }
+                    }
+                }
+
+            } else {
+                for (Edge<Integer, Integer> edge : originalGraph.getEdges()) {
+                    if (!(incidentForbiddenEdges.contains(edge) || incidentForbiddenEdges.contains(edge.inverse())) && edge.isIncidentFor(candidateNode)) {
+                        if (firstEdge == null) {
+                            firstEdge = edge;
+                        } else if (secondEdge == null) {
+                            secondEdge = edge;
+                        } else {
+                            if (firstEdge.getLabel() < secondEdge.getLabel()) {
+                                if (edge.getLabel() < secondEdge.getLabel()) {
+                                    secondEdge = edge;
+                                }
+                            } else {
+                                if (edge.getLabel() < firstEdge.getLabel()) {
+                                    firstEdge = edge;
+                                }
+                            }
+
+                        }
                     }
                 }
             }
-        }
 
-        if (firstEdge != null && secondEdge != null) {
-            try {
-                mst.addEdge(firstEdge).addEdge(secondEdge);
-            } catch (GraphNodeMissingException e) {
-                e.printStackTrace();
+            if (firstEdge != null && secondEdge != null) {
+                try {
+                    //System.out.println("Archi trovati: " + firstEdge.toString() + " e " + secondEdge.toString());
+                    mst.addEdge(firstEdge).addEdge(secondEdge);
+                } catch (GraphNodeMissingException e) {
+                    e.printStackTrace();
+                }
             }
         }
 

@@ -69,6 +69,7 @@ public class Graph<K, V, E> implements Cloneable {
     }
 
     public Graph<K, V, E> addEdge(@NotNull Edge<K, E> edge) throws GraphNodeMissingException {
+        //System.out.println("Aggiungo arco: " + edge.toString());
         return this.addEdge(edge.getFrom(), edge.getTo(), edge.getLabel());
     }
 

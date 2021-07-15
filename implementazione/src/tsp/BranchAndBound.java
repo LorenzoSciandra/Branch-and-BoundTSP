@@ -31,9 +31,8 @@ public class BranchAndBound {
             SubProblem currentProblem = subProblemQueue.remove();
 
             /*
-            System.out.println("Nodo corrente: " + currentProblem.getOneTree().toString() + " costo: " +
-            currentProblem.getLowerBound() + " ciclo: " + currentProblem.containsHamiltonianCycle() + " ammissibile:
-            " + currentProblem.isFeasible());
+            System.out.println("Nodo corrente: " + currentProblem.getOneTree().toString());
+            System.out.println("Costo: " + currentProblem.getLowerBound() + " ciclo: " + currentProblem.containsHamiltonianCycle() + " ammissibile: " + currentProblem.isFeasible());
             System.out.println("Archi forzati: " + currentProblem.getMandatoryEdges().toString());
             System.out.println("Archi vietati: " + currentProblem.getForbiddenEdges().toString());
             System.out.println("\n\n");
@@ -87,7 +86,8 @@ public class BranchAndBound {
 
         for (Edge<Integer, Integer> integerIntegerEdge : subCycle) {
             if (!(currentProblem.getMandatoryEdges().contains(integerIntegerEdge) ||
-                  currentProblem.getMandatoryEdges().contains(integerIntegerEdge.inverse()))) {
+                  currentProblem.getMandatoryEdges().contains(integerIntegerEdge.inverse()))
+                ) {
                 forbiddenEdges.add(integerIntegerEdge);
                 //System.out.println("Arco vietato: " + forbiddenEdges + "\n");
                 SubProblem sp = new SubProblem(graph,
@@ -96,12 +96,13 @@ public class BranchAndBound {
                                                candidateNode);
                 subProblemQueue.add(sp);
                 /*
-                System.out.println("Figlio generato: " + sp.getOneTree().toString() + " costo: " + sp.getLowerBound()
+                System.out.println("Figlio generato: " + sp.getOneTree().toString());
+                System.out.println("Costo: " + sp.getLowerBound()
                  + " ciclo: " + sp.containsHamiltonianCycle());
                 System.out.println("Archi forzati: " + sp.getMandatoryEdges().toString());
                 System.out.println("Archi vietati: " + sp.getForbiddenEdges().toString());
-                System.out.println("\n\n");
-                */
+                System.out.println("\n\n");*/
+
                 forbiddenEdges.remove(integerIntegerEdge);
                 mandatoryEdges.add(integerIntegerEdge);
             }

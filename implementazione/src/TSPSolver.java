@@ -3,18 +3,20 @@ import tsp.BranchAndBound;
 import tsp.HamiltonianCycle;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TSPSolver {
     public static void main(String[] args) throws IOException {
+        /*
         if (args.length < 1) {
             System.out.println("Missing graph file path");
             System.exit(1);
-        }
+        }*/
 
-        File graphFile = new File(args[0]);
+        File graphFile = new File("implementazione/datasets/USAir97.mtx");
 
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
         Pattern edgePattern = Pattern.compile("([0-9]+) ([0-9]+) ([0-9.]+)");
@@ -52,6 +54,8 @@ public class TSPSolver {
             System.exit(1);
         }
 
+        //System.out.println(graph);
+
         BranchAndBound bnb = new BranchAndBound(graph, graph.getNodes().get(0).getKey());
 
         long time1 = System.currentTimeMillis();
@@ -62,5 +66,6 @@ public class TSPSolver {
         System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
 
         System.out.println("Tempo d'esecuzione: " + time + " millisecondi");
+
     }
 }
