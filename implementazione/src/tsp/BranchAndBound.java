@@ -41,36 +41,32 @@ public class BranchAndBound {
             }
         }
 
+        TSPResult minTSPResult = new TSPResult(graph, Integer.MAX_VALUE);
         SubProblem rootProblem = new SubProblem(graph, new ArrayList<>(), new ArrayList<>(), candidateNode);
         subProblemQueue.add(rootProblem);
-        TSPResult minTSPResult = new TSPResult(graph, Integer.MAX_VALUE);
+        minTSPResult.increaseNodeCount(1);
 
         while (!subProblemQueue.isEmpty()) {
 
             SubProblem currentProblem = subProblemQueue.remove();
 
-/*            System.out.println("Nodo corrente: " + currentProblem.getOneTree().toString());
-            System.out.println("Costo: " + currentProblem.getLowerBound() + " ciclo: " + currentProblem
-            .containsHamiltonianCycle() + " ammissibile: " + currentProblem.isFeasible());
-            System.out.println("Archi forzati: " + currentProblem.getMandatoryEdges().toString());
-            System.out.println("Archi vietati: " + currentProblem.getForbiddenEdges().toString());
-            System.out.println("\n\n");
-
-            try {
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }*/
             if (currentProblem.isFeasible()) {
                 if (currentProblem.containsHamiltonianCycle()) {
                     if (minTSPResult.getCost() > currentProblem.getLowerBound()) {
-                        // found better solution! Closing because candidate solution.
+                        // Found better solution! Closing because candidate solution.
                         minTSPResult.newSolutionFound(currentProblem.getOneTree(),
                                                       currentProblem.getLowerBound());
+                        minTSPResult.increaseClosedNodesForBestCount(1);
                     }
                 } else if (currentProblem.getLowerBound() < minTSPResult.getCost()) {
-                    branch(currentProblem);
+                    int newNodeCount = branch(currentProblem);
+                    minTSPResult.increaseNodeCount(newNodeCount);
+                    minTSPResult.increaseIntermediateNodes(1);
+                } else {
+                    minTSPResult.increaseClosedNodesForBound(1);
                 }
+            } else {
+                minTSPResult.increaseClosedNodesForUnfeasibilityCount(1);
             }
             // else closed because unfeasible
         }
@@ -80,17 +76,16 @@ public class BranchAndBound {
         return minTSPResult;
     }
 
-    private void branch(SubProblem currentProblem) {
+    private int branch(SubProblem currentProblem) {
 
         HashMap<Integer, Integer> parentsVector = new HashMap<>();
         dfs(currentProblem.getOneTree().getNode(candidateNode), parentsVector, currentProblem.getOneTree());
+        int newNodeCount = 0;
 
         ArrayList<Edge<Integer, Integer>> subCycle = new ArrayList<>();
 
         int toNode = candidateNode;
         int fromNode = Integer.MAX_VALUE;
-
-        //System.out.println("Sottociclo: ");
 
         while (fromNode != candidateNode) {
             fromNode = parentsVector.get(toNode);
@@ -98,9 +93,6 @@ public class BranchAndBound {
             //System.out.print("(" + fromNode + ", " + toNode + ") ");
             toNode = fromNode;
         }
-
-        //System.out.println("\n");
-
 
         ArrayList<Edge<Integer, Integer>> mandatoryEdges = currentProblem.getMandatoryEdges();
         ArrayList<Edge<Integer, Integer>> forbiddenEdges = currentProblem.getForbiddenEdges();
@@ -110,24 +102,19 @@ public class BranchAndBound {
                   currentProblem.getMandatoryEdges().contains(integerIntegerEdge.inverse()))
             ) {
                 forbiddenEdges.add(integerIntegerEdge);
-                //System.out.println("Arco vietato: " + forbiddenEdges + "\n");
                 SubProblem sp = new SubProblem(graph,
                                                new ArrayList<>(mandatoryEdges),
                                                new ArrayList<>(forbiddenEdges),
                                                candidateNode);
                 subProblemQueue.add(sp);
-                /*
-                System.out.println("Figlio generato: " + sp.getOneTree().toString());
-                System.out.println("Costo: " + sp.getLowerBound()
-                 + " ciclo: " + sp.containsHamiltonianCycle());
-                System.out.println("Archi forzati: " + sp.getMandatoryEdges().toString());
-                System.out.println("Archi vietati: " + sp.getForbiddenEdges().toString());
-                System.out.println("\n\n");*/
+                newNodeCount++;
 
                 forbiddenEdges.remove(integerIntegerEdge);
                 mandatoryEdges.add(integerIntegerEdge);
             }
         }
+
+        return newNodeCount;
     }
 
     private void dfs(@NotNull Node<Integer, Integer, Integer> nodoCorrente,

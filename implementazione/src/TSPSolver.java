@@ -38,6 +38,8 @@ public class TSPSolver {
 
         System.out.println(result.toString());
 
+        System.out.println(result.getStats());
+
         System.out.println("Execution time: " + time + " milliseconds");
 
     }
