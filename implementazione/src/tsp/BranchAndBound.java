@@ -7,7 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.PriorityQueue;
+import java.util.stream.Collectors;
 
 public class BranchAndBound {
     // todo convert to priority queue
@@ -16,7 +18,7 @@ public class BranchAndBound {
     private Integer candidateNode;
 
     public BranchAndBound(Graph<Integer, Integer, Integer> graph, Integer candidateNode) {
-        this.graph = graph;
+        this.graph = graph.clone();
         this.subProblemQueue = new PriorityQueue<>();
         this.candidateNode = candidateNode;
     }
@@ -48,9 +50,9 @@ public class BranchAndBound {
 
             SubProblem currentProblem = subProblemQueue.remove();
 
-            /*
-            System.out.println("Nodo corrente: " + currentProblem.getOneTree().toString());
-            System.out.println("Costo: " + currentProblem.getLowerBound() + " ciclo: " + currentProblem.containsHamiltonianCycle() + " ammissibile: " + currentProblem.isFeasible());
+/*            System.out.println("Nodo corrente: " + currentProblem.getOneTree().toString());
+            System.out.println("Costo: " + currentProblem.getLowerBound() + " ciclo: " + currentProblem
+            .containsHamiltonianCycle() + " ammissibile: " + currentProblem.isFeasible());
             System.out.println("Archi forzati: " + currentProblem.getMandatoryEdges().toString());
             System.out.println("Archi vietati: " + currentProblem.getForbiddenEdges().toString());
             System.out.println("\n\n");
@@ -64,8 +66,8 @@ public class BranchAndBound {
                 if (currentProblem.containsHamiltonianCycle()) {
                     if (minHamiltonianCycle.getCost() > currentProblem.getLowerBound()) {
                         // found better solution! Closing because candidate solution.
-                        minHamiltonianCycle.setCost(currentProblem.getLowerBound());
-                        minHamiltonianCycle.setGraph(currentProblem.getOneTree());
+                        minHamiltonianCycle.newSolutionFound(currentProblem.getOneTree(),
+                                                             currentProblem.getLowerBound());
                     }
                 } else if (currentProblem.getLowerBound() < minHamiltonianCycle.getCost()) {
                     branch(currentProblem);
@@ -73,6 +75,8 @@ public class BranchAndBound {
             }
             // else closed because unfeasible
         }
+
+        minHamiltonianCycle.finalizeSolution();
 
         return minHamiltonianCycle;
     }
@@ -105,7 +109,7 @@ public class BranchAndBound {
         for (Edge<Integer, Integer> integerIntegerEdge : subCycle) {
             if (!(currentProblem.getMandatoryEdges().contains(integerIntegerEdge) ||
                   currentProblem.getMandatoryEdges().contains(integerIntegerEdge.inverse()))
-                ) {
+            ) {
                 forbiddenEdges.add(integerIntegerEdge);
                 //System.out.println("Arco vietato: " + forbiddenEdges + "\n");
                 SubProblem sp = new SubProblem(graph,

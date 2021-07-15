@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 public class BranchAndBoundTest {
 
     @Test
-    public void esempioPDFGrosso() throws Exception {
+    public void esempioPDFGrosso() throws UnsolvableProblemException {
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
         graph.addNodesEdge(1, 2, 5);
         graph.addNodesEdge(1, 3, 8);
@@ -31,7 +31,7 @@ public class BranchAndBoundTest {
     }
 
     @Test
-    public void esempioProvaEsame() throws Exception {
+    public void esempioProvaEsame() throws UnsolvableProblemException {
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
 
         graph.addNodesEdge(1, 2, 5);
@@ -57,7 +57,7 @@ public class BranchAndBoundTest {
     }
 
     @Test
-    public void esempioGeeksForGeeks() throws Exception {
+    public void esempioGeeksForGeeks() throws UnsolvableProblemException {
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
 
         graph.addNodesEdge(1, 2, 10);
@@ -79,7 +79,7 @@ public class BranchAndBoundTest {
     }
 
     @Test
-    public void esempioEserciziMoodle() throws Exception {
+    public void esempioEserciziMoodle() throws UnsolvableProblemException {
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
 
         graph.addNodesEdge(1, 2, 5);
@@ -110,7 +110,7 @@ public class BranchAndBoundTest {
     }
 
     @Test
-    public void esempioUniversitarioOnline() throws Exception {
+    public void esempioUniversitarioOnline() throws UnsolvableProblemException {
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
 
         graph.addNodesEdge(1, 2, 12);
@@ -135,7 +135,7 @@ public class BranchAndBoundTest {
         System.out.println("Tempo d'esecuzione: " + time + " millisecondi" );
     }
     @Test
-    public void esempioPolitecnicoOnline() throws Exception {
+    public void esempioPolitecnicoOnline() throws UnsolvableProblemException {
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
 
         graph.addNodesEdge(1, 2, 86);

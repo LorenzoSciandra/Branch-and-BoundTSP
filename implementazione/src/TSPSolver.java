@@ -24,9 +24,9 @@ public class TSPSolver {
 
         long time1 = System.currentTimeMillis();
 
-        HamiltonianCycle cycle = null;
+        HamiltonianCycle result = null;
         try {
-            cycle = bnb.solveProblem(removeInvalidNodes);
+            result = bnb.solveProblem(removeInvalidNodes);
         } catch (UnsolvableProblemException e) {
             System.err.println("Some nodes have only one incident edge. Terminating.");
             System.err.println(e.oneWayNodesKeys.toString());
@@ -35,8 +35,7 @@ public class TSPSolver {
 
         long time = System.currentTimeMillis() - time1;
 
-        System.out.printf("Costo: %d\n", cycle.getCost());
-        System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
+        System.out.println(result.toString());
 
         System.out.println("Tempo d'esecuzione: " + time + " millisecondi");
 
