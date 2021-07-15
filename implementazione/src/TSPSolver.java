@@ -1,4 +1,5 @@
 import graph.structures.Graph;
+import org.apache.commons.cli.*;
 import org.jetbrains.annotations.NotNull;
 import tsp.BranchAndBound;
 import tsp.TSPResult;
@@ -10,15 +11,53 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TSPSolver {
+
     public static void main(String[] args) throws IOException {
-        if (args.length < 1) {
-            System.out.println("Missing graph file path");
+        Options options = generateCLIOptions();
+        CommandLineParser parser = new DefaultParser();
+
+        String graphPath = null;
+        boolean removeInvalidNodes = false;
+        int threadCount = 1;
+
+        try {
+            CommandLine line = parser.parse(options, args);
+
+            if (line.hasOption("h")) {
+                new HelpFormatter().printHelp("solver", options);
+                System.exit(0);
+            }
+
+            if (!line.hasOption("g")) {
+                System.err.println("""
+                                      Mandatory option -g hasn't been specified.
+                                      Use the command option -h for more informations.
+                                      """);
+                System.exit(0);
+            }
+
+            graphPath = line.getOptionValue("g");
+
+            removeInvalidNodes = line.hasOption("i");
+
+            if (line.hasOption("t")) {
+                try {
+                    threadCount = Integer.parseInt(line.getOptionValue("t"));
+                    if (threadCount <= 0) {
+                        throw new NumberFormatException();
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Parameter -t requires a positive integer value.");
+                    System.exit(1);
+                }
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
             System.exit(1);
         }
 
-        Graph<Integer, Integer, Integer> graph = loadGraph(args[0]);
-
-        boolean removeInvalidNodes = Boolean.parseBoolean(args[1]);
+        Graph<Integer, Integer, Integer> graph = loadGraph(graphPath);
 
         BranchAndBound bnb = new BranchAndBound(graph, graph.getNodes().get(0).getKey());
 
@@ -28,8 +67,8 @@ public class TSPSolver {
         try {
             result = bnb.solveProblem(removeInvalidNodes);
         } catch (UnsolvableProblemException e) {
-            System.err.println("Some nodes have only one incident edge. Terminating. Follows a list of the nodes with" +
-                               " issues:");
+            System.err.println("Some nodes have only one incident edge. Terminating. " +
+                               "Follows a list of the nodes with issues:");
             System.err.println(e.oneWayNodesKeys.toString());
             System.exit(1);
         }
@@ -46,11 +85,12 @@ public class TSPSolver {
 
     /**
      * A simple file reader that builds an Integer graph.
-     * It expects to find multiple rows. Every row must contain information about exactly ONE edge, formatted like this regular expression: <br>
+     * It expects to find multiple rows. Every row must contain information about exactly ONE edge, formatted like
+     * this regular expression: <br>
      * ([0-9]+)[ ,]+([0-9]+)[ ,]+([0-9.]+)<br>
      * The cost can be a floating point number.<br><br>
      * If the first character of a line is not a space or a number, it will be skipped.
-     *
+     * <p>
      * If no file exists at the specified path, the method terminates the program.
      *
      * @param pathToFile The path to the file to be loaded
@@ -99,5 +139,16 @@ public class TSPSolver {
         }
 
         return graph;
+    }
+
+    private static @NotNull Options generateCLIOptions() {
+        Options options = new Options();
+
+        options.addOption("g", "graph-path", true, "path to the file containing the graph")
+               .addOption("i", "ignore-low-degree-nodes", false, "ignore all nodes of degree < 2")
+               .addOption("t", "threads", true, "set how many threads are available for computations")
+               .addOption("h", "help", false, "print this message");
+
+        return options;
     }
 }
