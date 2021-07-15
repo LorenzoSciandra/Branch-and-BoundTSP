@@ -28,7 +28,8 @@ public class TSPSolver {
         try {
             result = bnb.solveProblem(removeInvalidNodes);
         } catch (UnsolvableProblemException e) {
-            System.err.println("Some nodes have only one incident edge. Terminating.");
+            System.err.println("Some nodes have only one incident edge. Terminating. Follows a list of the nodes with" +
+                               " issues:");
             System.err.println(e.oneWayNodesKeys.toString());
             System.exit(1);
         }
@@ -37,10 +38,25 @@ public class TSPSolver {
 
         System.out.println(result.toString());
 
-        System.out.println("Tempo d'esecuzione: " + time + " millisecondi");
+        System.out.println("Execution time: " + time + " milliseconds");
 
     }
 
+    /**
+     * A simple file reader that builds an Integer graph.
+     * It expects to find multiple rows. Every row must contain information about exactly ONE edge, formatted like this regular expression: <br>
+     * ([0-9]+)[ ,]+([0-9]+)[ ,]+([0-9.]+)<br>
+     * The cost can be a floating point number.<br><br>
+     * If the first character of a line is not a space or a number, it will be skipped.
+     *
+     * If no file exists at the specified path, the method terminates the program.
+     *
+     * @param pathToFile The path to the file to be loaded
+     * @return A graph based on integer values.
+     * @throws IOException Currently I'm not sure in which case this exception is thrown.
+     * @implNote If the edge cost is a floating point number, it will be multiplied by 100, before being truncated to
+     * an integer.
+     */
     @NotNull
     private static Graph<Integer, Integer, Integer> loadGraph(String pathToFile) throws IOException {
         File graphFile = new File(pathToFile);
