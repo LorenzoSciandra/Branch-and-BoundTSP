@@ -257,6 +257,9 @@ Come si può notare questa è identica al rilassamento lagrangiano prima mostrat
 
 \begin{frame}{Analisi dell'implementazione}
     La gestione dell'insieme dei SubProblem ancora aperti è stata realizzata con una coda di priorità \textbf{min-heap}, ossia con una struttura dati che presenta complessità $O(1)$ per leggere l'elemento con lower bound minore e $O(log\:n)$ per estrarre ed aggiungere un elemento.
+    \newline
+    \newline
+    Terminiamo questa esposizione con l'analisi delle prestazioni dell'implementazione. Su grafi banali il codice termina in qualche decina di millisecondi generando una manciata di nodi nell'albero di branch. Con istanze di grafi contenenti centinaia di archi, si ottengono invece esecuzioni che durano decine di secondi e il processo continua esponenzialmente di questo passo. Quando il numero degli archi supera il migliaio, infatti, in poco più di un minuto d'esecuzione vengono gerati ed esplorati 15000 nodi nell'albero di branch e l'esecuzione per terminare richiede decine di minuti.
 \end{frame}
 
 \end{document}

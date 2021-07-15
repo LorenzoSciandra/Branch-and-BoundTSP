@@ -22,6 +22,7 @@ public class BranchAndBound {
     }
 
     public HamiltonianCycle solveProblem() {
+
         SubProblem rootProblem = new SubProblem(graph, new ArrayList<>(), new ArrayList<>(), candidateNode);
         subProblemQueue.add(rootProblem);
         HamiltonianCycle minHamiltonianCycle = new HamiltonianCycle(graph, Integer.MAX_VALUE);
