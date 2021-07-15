@@ -12,7 +12,6 @@ import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
 public class BranchAndBound {
-    // todo convert to priority queue
     public PriorityQueue<SubProblem> subProblemQueue;
     public Graph<Integer, Integer, Integer> graph;
     private Integer candidateNode;
@@ -23,11 +22,11 @@ public class BranchAndBound {
         this.candidateNode = candidateNode;
     }
 
-    public HamiltonianCycle solveProblem() throws UnsolvableProblemException {
+    public TSPResult solveProblem() throws UnsolvableProblemException {
         return solveProblem(false);
     }
 
-    public HamiltonianCycle solveProblem(boolean ignoreOneWayNodes) throws UnsolvableProblemException {
+    public TSPResult solveProblem(boolean ignoreOneWayNodes) throws UnsolvableProblemException {
         List<Integer> oneWayNodesKeys = graph.getNodes()
                                              .stream()
                                              .filter(node -> node.getDegree() < 2)
@@ -44,7 +43,7 @@ public class BranchAndBound {
 
         SubProblem rootProblem = new SubProblem(graph, new ArrayList<>(), new ArrayList<>(), candidateNode);
         subProblemQueue.add(rootProblem);
-        HamiltonianCycle minHamiltonianCycle = new HamiltonianCycle(graph, Integer.MAX_VALUE);
+        TSPResult minTSPResult = new TSPResult(graph, Integer.MAX_VALUE);
 
         while (!subProblemQueue.isEmpty()) {
 
@@ -64,21 +63,21 @@ public class BranchAndBound {
             }*/
             if (currentProblem.isFeasible()) {
                 if (currentProblem.containsHamiltonianCycle()) {
-                    if (minHamiltonianCycle.getCost() > currentProblem.getLowerBound()) {
+                    if (minTSPResult.getCost() > currentProblem.getLowerBound()) {
                         // found better solution! Closing because candidate solution.
-                        minHamiltonianCycle.newSolutionFound(currentProblem.getOneTree(),
-                                                             currentProblem.getLowerBound());
+                        minTSPResult.newSolutionFound(currentProblem.getOneTree(),
+                                                      currentProblem.getLowerBound());
                     }
-                } else if (currentProblem.getLowerBound() < minHamiltonianCycle.getCost()) {
+                } else if (currentProblem.getLowerBound() < minTSPResult.getCost()) {
                     branch(currentProblem);
                 }
             }
             // else closed because unfeasible
         }
 
-        minHamiltonianCycle.finalizeSolution();
+        minTSPResult.finalizeSolution();
 
-        return minHamiltonianCycle;
+        return minTSPResult;
     }
 
     private void branch(SubProblem currentProblem) {

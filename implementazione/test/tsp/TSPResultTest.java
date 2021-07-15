@@ -4,16 +4,16 @@ import graph.structures.Edge;
 import graph.structures.Graph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tsp.HamiltonianCycle.ResultState;
+import tsp.TSPResult.ResultState;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class HamiltonianCycleTest {
+class TSPResultTest {
 
-    HamiltonianCycle tsp;
+    TSPResult tsp;
     Graph<Integer, Integer, Integer> dummy;
 
     @BeforeEach
@@ -23,7 +23,7 @@ class HamiltonianCycleTest {
              .addNodesEdge(2, 3, 5)
              .addNodesEdge(3, 1, 7);
 
-        tsp = new HamiltonianCycle(dummy, Integer.MAX_VALUE);
+        tsp = new TSPResult(dummy, Integer.MAX_VALUE);
     }
 
     void updateGraphSolvable() {

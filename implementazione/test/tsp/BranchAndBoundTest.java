@@ -21,7 +21,7 @@ public class BranchAndBoundTest {
 
         BranchAndBound bnb = new BranchAndBound(graph, 1);
         long time1 = System.currentTimeMillis();
-        HamiltonianCycle cycle = bnb.solveProblem();
+        TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
         System.out.printf("Costo: %d\n", cycle.getCost());
@@ -47,7 +47,7 @@ public class BranchAndBoundTest {
 
         BranchAndBound bnb = new BranchAndBound(graph, 1);
         long time1 = System.currentTimeMillis();
-        HamiltonianCycle cycle = bnb.solveProblem();
+        TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
         System.out.printf("Costo: %d\n", cycle.getCost());
@@ -69,7 +69,7 @@ public class BranchAndBoundTest {
 
         BranchAndBound bnb = new BranchAndBound(graph, 1);
         long time1 = System.currentTimeMillis();
-        HamiltonianCycle cycle = bnb.solveProblem();
+        TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
         System.out.printf("Costo: %d\n", cycle.getCost());
@@ -100,7 +100,7 @@ public class BranchAndBoundTest {
 
         BranchAndBound bnb = new BranchAndBound(graph, 1);
         long time1 = System.currentTimeMillis();
-        HamiltonianCycle cycle = bnb.solveProblem();
+        TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
         System.out.printf("Costo: %d\n", cycle.getCost());
@@ -126,7 +126,7 @@ public class BranchAndBoundTest {
 
         BranchAndBound bnb = new BranchAndBound(graph, 1);
         long time1 = System.currentTimeMillis();
-        HamiltonianCycle cycle = bnb.solveProblem();
+        TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
         System.out.printf("Costo: %d\n", cycle.getCost());
@@ -162,7 +162,7 @@ public class BranchAndBoundTest {
 
         BranchAndBound bnb = new BranchAndBound(graph, 1);
         long time1 = System.currentTimeMillis();
-        HamiltonianCycle cycle = bnb.solveProblem();
+        TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
         System.out.printf("Costo: %d\n", cycle.getCost());

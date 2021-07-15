@@ -5,13 +5,13 @@ import graph.structures.Graph;
 
 import java.util.ArrayList;
 
-public class HamiltonianCycle {
+public class TSPResult {
 
     private Graph<Integer, Integer, Integer> graph;
     private int cost;
     private ResultState state = ResultState.Unsolved;
 
-    public HamiltonianCycle(Graph<Integer, Integer, Integer> graph, int cost) {
+    public TSPResult(Graph<Integer, Integer, Integer> graph, int cost) {
         this.cost = cost;
         this.graph = graph;
     }

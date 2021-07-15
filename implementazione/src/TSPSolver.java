@@ -1,7 +1,7 @@
 import graph.structures.Graph;
 import org.jetbrains.annotations.NotNull;
 import tsp.BranchAndBound;
-import tsp.HamiltonianCycle;
+import tsp.TSPResult;
 import tsp.UnsolvableProblemException;
 
 import java.io.*;
@@ -24,7 +24,7 @@ public class TSPSolver {
 
         long time1 = System.currentTimeMillis();
 
-        HamiltonianCycle result = null;
+        TSPResult result = null;
         try {
             result = bnb.solveProblem(removeInvalidNodes);
         } catch (UnsolvableProblemException e) {
