@@ -10,13 +10,12 @@ import java.util.regex.Pattern;
 
 public class TSPSolver {
     public static void main(String[] args) throws IOException {
-        /*
         if (args.length < 1) {
             System.out.println("Missing graph file path");
             System.exit(1);
-        }*/
+        }
 
-        File graphFile = new File("implementazione/datasets/USAir97.mtx");
+        File graphFile = new File(args[0]);
 
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
         Pattern edgePattern = Pattern.compile("([0-9]+) ([0-9]+) ([0-9.]+)");
@@ -35,7 +34,6 @@ public class TSPSolver {
 
                 Matcher matcher = edgePattern.matcher(line);
                 if (matcher.matches()) {
-                    // System.out.println(line);
                     int from = Integer.parseInt(matcher.group(1));
                     int to = Integer.parseInt(matcher.group(2));
                     int weight;
@@ -53,8 +51,6 @@ public class TSPSolver {
             System.out.println("No file exists at the specified path");
             System.exit(1);
         }
-
-        //System.out.println(graph);
 
         BranchAndBound bnb = new BranchAndBound(graph, graph.getNodes().get(0).getKey());
 
