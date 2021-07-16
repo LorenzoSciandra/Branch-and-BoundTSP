@@ -19,23 +19,41 @@ public class SubProblem implements Comparable<SubProblem> {
     private ArrayList<Edge<Integer, Integer>> mandatoryEdges;
     private ArrayList<Edge<Integer, Integer>> forbiddenEdges;
     private Integer candidateNode;
+    private Integer subProblemTreeLevel;
     private Graph<Integer, Integer, Integer> oneTree;
     private int lowerBound;
     private boolean containsHamiltonianCycle;
     private boolean feasible;
 
+    /**
+     * Constructor made to be used to generate a root SubProblem.
+     *
+     * @param originalGraph The original graph to work on
+     * @param candidateNode The candidate node for this sub problem
+     */
     public SubProblem(Graph<Integer, Integer, Integer> originalGraph, Integer candidateNode) {
-        this(originalGraph, new ArrayList<>(0), new ArrayList<>(0), candidateNode);
+        this(originalGraph, new ArrayList<>(0), new ArrayList<>(0), candidateNode, 0);
     }
 
+    /**
+     * Generic constructor for a SubProblem at any level
+     *
+     * @param originalGraph       The original graph to work on
+     * @param mandatoryEdges      A list of edges that must be included in the path
+     * @param forbiddenEdges      A list of edges that must not be included in the path
+     * @param candidateNode       The candidate node for this sub problem
+     * @param subProblemTreeLevel The level of the sub problem in the search tree
+     */
     public SubProblem(@NotNull Graph<Integer, Integer, Integer> originalGraph,
                       ArrayList<Edge<Integer, Integer>> mandatoryEdges,
                       ArrayList<Edge<Integer, Integer>> forbiddenEdges,
-                      Integer candidateNode) {
+                      Integer candidateNode,
+                      Integer subProblemTreeLevel) {
         this.mandatoryEdges = mandatoryEdges;
         this.forbiddenEdges = forbiddenEdges;
         this.originalGraph = originalGraph;
         this.candidateNode = candidateNode;
+        this.subProblemTreeLevel = subProblemTreeLevel;
 
         // The sub-problems automatically evaluate themselves, in order to be ready for further branching.
         this.oneTree = compute1Tree();
@@ -95,7 +113,8 @@ public class SubProblem implements Comparable<SubProblem> {
                 firstEdge = incidentMandatoryEdges.get(0);
 
                 for (Edge<Integer, Integer> edge : originalGraph.getEdges()) {
-                    if (!(incidentForbiddenEdges.contains(edge) || incidentForbiddenEdges.contains(edge.inverse())) && (edge.isIncidentFor(candidateNode)) && (!(firstEdge.equals(edge) || firstEdge.inverse().equals(edge)))) {
+                    if (!(incidentForbiddenEdges.contains(edge) || incidentForbiddenEdges.contains(edge.inverse())) && (edge.isIncidentFor(candidateNode)) && (!(firstEdge.equals(edge) || firstEdge.inverse()
+                                                                                                                                                                                                    .equals(edge)))) {
                         if (secondEdge == null) {
                             secondEdge = edge;
                             //System.out.println("Arco trovato:" + edge.getFrom() + " " + edge.getTo() + "\n");
@@ -188,18 +207,39 @@ public class SubProblem implements Comparable<SubProblem> {
         return feasible;
     }
 
+    public Integer getSubProblemTreeLevel() {
+        return subProblemTreeLevel;
+    }
+
     @Override
     public int compareTo(@NotNull SubProblem o) {
-        int comparisonResult = Integer.compare(this.lowerBound, o.lowerBound);
-        if (comparisonResult == 0) {
-            if (this.containsHamiltonianCycle) {
-                return -1;
-            } else {
-                return 1;
-            }
-        } else {
-            return comparisonResult;
+        // First order by search tree level
+        int levelComparison = Integer.compare(this.subProblemTreeLevel, o.subProblemTreeLevel);
+        if (levelComparison != 0) {
+            return levelComparison;
         }
+
+        // If two Nodes/SubProblems are at the same level, order them by lowest lowerBound
+        int boundComparison = Integer.compare(this.lowerBound, o.lowerBound);
+        if (boundComparison != 0) {
+            return boundComparison;
+        }
+
+        // Finally, try to order Nodes with the same lowerBound giving priority to SubProblems that have a HamCycle.
+        if (this.containsHamiltonianCycle) {
+            return -1;
+        } else {
+            return 1;
+        }
+
+    }
+
+    public String toString() {
+        String s = getOneTree().toString();
+        s = s + "\n costo: " + getLowerBound();
+        s = s + "\n Archi forzati: " + getMandatoryEdges().toString();
+        s = s + "\n Archi vietati: " + getForbiddenEdges().toString();
+        return s;
     }
 
     private static class ComparatorIntegerEdge implements Comparator<Edge<Integer, Integer>> {
@@ -218,14 +258,6 @@ public class SubProblem implements Comparable<SubProblem> {
         public int compare(Edge<Integer, Integer> o1, Edge<Integer, Integer> o2) {
             return o1.getLabel().compareTo(o2.getLabel());
         }
-    }
-
-    public String toString(){
-        String s = getOneTree().toString();
-        s = s + "\n costo: " + getLowerBound();
-        s = s + "\n Archi forzati: " + getMandatoryEdges().toString();
-        s = s + "\n Archi vietati: " + getForbiddenEdges().toString();
-        return s;
     }
 
 }

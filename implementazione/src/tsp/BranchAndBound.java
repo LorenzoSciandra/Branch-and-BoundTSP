@@ -44,7 +44,7 @@ public class BranchAndBound {
         }
 
         TSPResult minTSPResult = new TSPResult(graph, Integer.MAX_VALUE);
-        SubProblem rootProblem = new SubProblem(graph, new ArrayList<>(), new ArrayList<>(), candidateNode);
+        SubProblem rootProblem = new SubProblem(graph, candidateNode);
         subProblemQueue.add(rootProblem);
         minTSPResult.increaseNodeCount(1);
 
@@ -120,7 +120,7 @@ public class BranchAndBound {
                 SubProblem sp = new SubProblem(graph,
                                                new ArrayList<>(mandatoryEdges),
                                                new ArrayList<>(forbiddenEdges),
-                                               candidateNode);
+                                               candidateNode, 0);
                 subProblemQueue.add(sp);
                 newNodeCount++;
 

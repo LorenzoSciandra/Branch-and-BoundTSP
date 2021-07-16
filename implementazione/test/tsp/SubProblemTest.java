@@ -1,17 +1,12 @@
 package tsp;
 
-import graph.MinimumSpanningTree;
 import graph.structures.Edge;
 import graph.structures.Graph;
-import mst.MinimumSpanningTreeTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
-import static graph.MinimumSpanningTree.kruskalAlgorithm;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SubProblemTest {
@@ -34,7 +29,7 @@ public class SubProblemTest {
 
     @Test
     public void unoTreeNodoRadiceTest() throws Exception {
-        SubProblem radice = new SubProblem(initGraph(),new ArrayList<>(),new ArrayList<>(),1);
+        SubProblem radice = new SubProblem(initGraph(), new ArrayList<>(), new ArrayList<>(), 1, 0);
 
         Graph<Integer, Integer, Integer> unoTreeRadice  = radice.getOneTree();
 
@@ -56,7 +51,7 @@ public class SubProblemTest {
 
         forbiddenEdges.add(new Edge<>(1,3,2));
 
-        SubProblem nodo2 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges,1);
+        SubProblem nodo2 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges, 1, 0);
 
         Graph<Integer, Integer, Integer> unoTreeNodo2  = nodo2.getOneTree();
 
@@ -79,7 +74,7 @@ public class SubProblemTest {
         mandatoryEdges.add(new Edge<>(1,3,2));
         forbiddenEdges.add(new Edge<>(3,5,2));
 
-        SubProblem nodo3 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges,1);
+        SubProblem nodo3 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges, 1, 0);
 
         Graph<Integer, Integer, Integer> unoTreeNodo3  = nodo3.getOneTree();
 
@@ -103,7 +98,7 @@ public class SubProblemTest {
         mandatoryEdges.add(new Edge<>(3,5,2));
         forbiddenEdges.add(new Edge<>(5,4,1));
 
-        SubProblem nodo4 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges,1);
+        SubProblem nodo4 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges, 1, 0);
 
         Graph<Integer, Integer, Integer> unoTreeNodo4  = nodo4.getOneTree();
 
@@ -129,7 +124,7 @@ public class SubProblemTest {
         mandatoryEdges.add(new Edge<>(5,4,1));
         forbiddenEdges.add(new Edge<>(1,4,3));
 
-        SubProblem nodo5 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges,1);
+        SubProblem nodo5 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges, 1, 0);
 
         Graph<Integer, Integer, Integer> unoTreeNodo5  = nodo5.getOneTree();
 
@@ -156,7 +151,7 @@ public class SubProblemTest {
         forbiddenEdges.add(new Edge<>(1,4,3));
         forbiddenEdges.add(new Edge<>(1,2,5));
 
-        SubProblem nodo6 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges,1);
+        SubProblem nodo6 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges, 1, 0);
 
         Graph<Integer, Integer, Integer> unoTreeNodo6  = nodo6.getOneTree();
 
@@ -183,7 +178,7 @@ public class SubProblemTest {
         forbiddenEdges.add(new Edge<>(1,4,3));
         forbiddenEdges.add(new Edge<>(2,3,6));
 
-        SubProblem nodo6 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges,1);
+        SubProblem nodo6 = new SubProblem(initGraph(), mandatoryEdges, forbiddenEdges, 1, 0);
 
         Graph<Integer, Integer, Integer> unoTreeNodo6  = nodo6.getOneTree();
 
