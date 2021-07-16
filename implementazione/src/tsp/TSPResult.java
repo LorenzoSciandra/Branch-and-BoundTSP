@@ -4,6 +4,7 @@ import graph.structures.Edge;
 import graph.structures.Graph;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TSPResult {
 
@@ -12,11 +13,11 @@ public class TSPResult {
     private ResultState state = ResultState.Unsolved;
 
     // Statskeeping
-    private int openNodesCount = 0;
-    private int closedNodesForBestCount = 0;
-    private int closedNodesForBound = 0;
-    private int closedNodesForUnfeasibilityCount = 0;
-    private int intermediateNodesCount = 0;
+    private AtomicInteger openNodesCount = new AtomicInteger();
+    private AtomicInteger closedNodesForBestCount = new AtomicInteger();
+    private AtomicInteger closedNodesForBound = new AtomicInteger();
+    private AtomicInteger closedNodesForUnfeasibilityCount = new AtomicInteger();
+    private AtomicInteger intermediateNodesCount = new AtomicInteger();
 
     public TSPResult(Graph<Integer, Integer, Integer> graph, int cost) {
         this.cost = cost;
@@ -36,27 +37,27 @@ public class TSPResult {
     }
 
     public int getTotalNodesCount() {
-        return openNodesCount;
+        return openNodesCount.get();
     }
 
     public int getClosedNodesForBestCount() {
-        return closedNodesForBestCount;
+        return closedNodesForBestCount.get();
     }
 
     public int getClosedNodesForBound() {
-        return closedNodesForBound;
+        return closedNodesForBound.get();
     }
 
     public int getClosedNodesForUnfeasibilityCount() {
-        return closedNodesForUnfeasibilityCount;
+        return closedNodesForUnfeasibilityCount.get();
     }
 
     public int getIntermediateNodesCount() {
-        return intermediateNodesCount;
+        return intermediateNodesCount.get();
     }
 
     public int getClosedNodes() {
-        return this.closedNodesForBestCount + this.closedNodesForBound + this.closedNodesForUnfeasibilityCount;
+        return this.closedNodesForBestCount.get() + this.closedNodesForBound.get() + this.closedNodesForUnfeasibilityCount.get();
     }
 
     public void newSolutionFound(Graph<Integer, Integer, Integer> graph, int cost) {
@@ -133,49 +134,51 @@ public class TSPResult {
                                   - %d have been closed for bound;
                                   - %d have been closed because unfeasible.
                                  """,
-                             this.openNodesCount,
-                             this.intermediateNodesCount,
-                             this.closedNodesForBestCount,
-                             this.closedNodesForBound,
-                             this.closedNodesForUnfeasibilityCount);
+                             this.openNodesCount.get(),
+                             this.intermediateNodesCount.get(),
+                             this.closedNodesForBestCount.get(),
+                             this.closedNodesForBound.get(),
+                             this.closedNodesForUnfeasibilityCount.get());
     }
 
-    public void increaseNodeCount(int newNodeCount) {
+    public synchronized void increaseNodeCount(int newNodeCount) {
         throwIfFinalised();
 
-        this.openNodesCount += newNodeCount;
+        this.openNodesCount.addAndGet(newNodeCount);
     }
 
-    public void increaseClosedNodesForBestCount(int i) {
+    public synchronized void increaseClosedNodesForBestCount(int i) {
         throwIfFinalised();
 
-
-        this.closedNodesForBestCount += i;
+        this.closedNodesForBestCount.addAndGet(i);
     }
 
-    public void increaseClosedNodesForBound(int i) {
+    public synchronized void increaseClosedNodesForBound(int i) {
         throwIfFinalised();
 
-
-        this.closedNodesForBound += 1;
+        this.closedNodesForBound.addAndGet(i);
     }
 
-    public void increaseClosedNodesForUnfeasibilityCount(int i) {
+    public synchronized void increaseClosedNodesForUnfeasibilityCount(int i) {
         throwIfFinalised();
 
-        this.closedNodesForUnfeasibilityCount += i;
+        this.closedNodesForUnfeasibilityCount.addAndGet(i);
     }
 
-    public void increaseIntermediateNodes(int i) {
+    public synchronized void increaseIntermediateNodes(int i) {
         throwIfFinalised();
 
-        this.intermediateNodesCount += i;
+        this.intermediateNodesCount.addAndGet(i);
     }
 
     private void throwIfFinalised() {
         if (state == ResultState.Solved || state == ResultState.Unsolvable) {
             throw new IllegalStateException("The problem has already been completely examined.");
         }
+    }
+
+    public synchronized int getOpenNodes() {
+        return getClosedNodes() + getIntermediateNodesCount() - getTotalNodesCount();
     }
 
     public enum ResultState {

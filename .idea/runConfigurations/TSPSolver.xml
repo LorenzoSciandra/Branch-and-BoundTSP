@@ -2,7 +2,7 @@
   <configuration default="false" name="TSPSolver" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="TSPSolver" />
     <module name="TesinaOttimizzazioneCombinatoria" />
-    <option name="PROGRAM_PARAMETERS" value="-g $ProjectFileDir$/implementazione/datasets/USAir97_reduced.mtx -i" />
+    <option name="PROGRAM_PARAMETERS" value="-g $ProjectFileDir$/implementazione/datasets/USAir97_reduced.mtx -i " />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

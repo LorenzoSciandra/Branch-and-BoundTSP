@@ -67,7 +67,7 @@ public class TSPSolver {
         // Problem Solving \\
         TSPResult result = null;
         try {
-            result = bnb.solveProblem(removeInvalidNodes);
+            result = bnb.solveProblem(removeInvalidNodes, threadCount);
         } catch (UnsolvableProblemException e) {
             System.err.println("Some nodes have only one incident edge. Terminating. " +
                                "Follows a list of the nodes with issues:");
