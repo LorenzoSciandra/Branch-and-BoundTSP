@@ -73,9 +73,7 @@ public class BranchAndBound {
         try (ProgressBar bar = pbb.build()) {
             AtomicInteger currentLevel = new AtomicInteger(0);
             AtomicBoolean computationCompleted = new AtomicBoolean(false);
-            CyclicBarrier threadsIdleBarrier = new CyclicBarrier(threadNumber, () -> {
-                System.out.println(currentLevel.incrementAndGet());
-            });
+            CyclicBarrier threadsIdleBarrier = new CyclicBarrier(threadNumber, currentLevel::incrementAndGet);
 
             for (int i = 0; i < threadNumber; i++) {
                 termination.submit(new NodeComputerTask(currentLevel, threadsIdleBarrier, computationCompleted,
