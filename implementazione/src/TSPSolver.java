@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 public class TSPSolver {
 
     public static void main(String[] args) throws IOException {
+        // Commandline options reading \\
         Options options = generateCLIOptions();
         CommandLineParser parser = new DefaultParser();
 
@@ -57,12 +58,13 @@ public class TSPSolver {
             System.exit(1);
         }
 
+        // Problem posing \\
         Graph<Integer, Integer, Integer> graph = loadGraph(graphPath);
 
         BranchAndBound bnb = new BranchAndBound(graph, graph.getNodes().get(0).getKey());
 
         long time1 = System.currentTimeMillis();
-
+        // Problem Solving \\
         TSPResult result = null;
         try {
             result = bnb.solveProblem(removeInvalidNodes);

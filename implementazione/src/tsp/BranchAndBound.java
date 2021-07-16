@@ -3,22 +3,24 @@ package tsp;
 import graph.structures.Edge;
 import graph.structures.Graph;
 import graph.structures.Node;
+import me.tongfei.progressbar.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.stream.Collectors;
 
 public class BranchAndBound {
-    public PriorityQueue<SubProblem> subProblemQueue;
-    public Graph<Integer, Integer, Integer> graph;
-    private Integer candidateNode;
+    private final PriorityBlockingQueue<SubProblem> subProblemQueue;
+    private final Graph<Integer, Integer, Integer> graph;
+    private final Integer candidateNode;
 
     public BranchAndBound(Graph<Integer, Integer, Integer> graph, Integer candidateNode) {
         this.graph = graph.clone();
-        this.subProblemQueue = new PriorityQueue<>();
+        this.subProblemQueue = new PriorityBlockingQueue<>();
         this.candidateNode = candidateNode;
     }
 
@@ -46,29 +48,42 @@ public class BranchAndBound {
         subProblemQueue.add(rootProblem);
         minTSPResult.increaseNodeCount(1);
 
-        while (!subProblemQueue.isEmpty()) {
+        ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName("Computing solution")
+                                                         .setInitialMax(1)
+                                                         .setUpdateIntervalMillis(50)
+                                                         .setUnit(" nodes", 1)
+                                                         .showSpeed()
+                                                         .setSpeedUnit(ChronoUnit.SECONDS)
+                                                         .setMaxRenderedLength(120);
 
-            SubProblem currentProblem = subProblemQueue.remove();
+        try (ProgressBar bar = pbb.build()) {
+            while (!subProblemQueue.isEmpty()) {
 
-            if (currentProblem.isFeasible()) {
-                if (currentProblem.containsHamiltonianCycle()) {
-                    if (minTSPResult.getCost() > currentProblem.getLowerBound()) {
-                        // Found better solution! Closing because candidate solution.
-                        minTSPResult.newSolutionFound(currentProblem.getOneTree(),
-                                                      currentProblem.getLowerBound());
-                        minTSPResult.increaseClosedNodesForBestCount(1);
+                SubProblem currentProblem = subProblemQueue.remove();
+
+                if (currentProblem.isFeasible()) {
+                    if (currentProblem.containsHamiltonianCycle()) {
+                        if (minTSPResult.getCost() > currentProblem.getLowerBound()) {
+                            // Found better solution! Closing because candidate solution.
+                            minTSPResult.newSolutionFound(currentProblem.getOneTree(),
+                                                          currentProblem.getLowerBound());
+                            minTSPResult.increaseClosedNodesForBestCount(1);
+                        }
+                    } else if (currentProblem.getLowerBound() < minTSPResult.getCost()) {
+                        int newNodeCount = branch(currentProblem);
+                        minTSPResult.increaseNodeCount(newNodeCount);
+                        minTSPResult.increaseIntermediateNodes(1);
+                    } else {
+                        minTSPResult.increaseClosedNodesForBound(1);
                     }
-                } else if (currentProblem.getLowerBound() < minTSPResult.getCost()) {
-                    int newNodeCount = branch(currentProblem);
-                    minTSPResult.increaseNodeCount(newNodeCount);
-                    minTSPResult.increaseIntermediateNodes(1);
                 } else {
-                    minTSPResult.increaseClosedNodesForBound(1);
+                    minTSPResult.increaseClosedNodesForUnfeasibilityCount(1);
                 }
-            } else {
-                minTSPResult.increaseClosedNodesForUnfeasibilityCount(1);
+                // else closed because unfeasible
+
+                bar.maxHint(minTSPResult.getTotalNodesCount());
+                bar.stepTo(minTSPResult.getIntermediateNodesCount() + minTSPResult.getClosedNodes());
             }
-            // else closed because unfeasible
         }
 
         minTSPResult.finalizeSolution();

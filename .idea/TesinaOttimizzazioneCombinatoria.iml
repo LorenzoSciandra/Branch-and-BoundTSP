@@ -68,5 +68,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="commons.cli" level="project" />
+    <orderEntry type="library" name="me.tongfei.progressbar" level="project" />
   </component>
 </module>

@@ -35,7 +35,7 @@ public class TSPResult {
         return state;
     }
 
-    public int getOpenNodesCount() {
+    public int getTotalNodesCount() {
         return openNodesCount;
     }
 
