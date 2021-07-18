@@ -24,8 +24,9 @@ public class BranchAndBoundTest {
         TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
-        System.out.printf("Costo: %d\n", cycle.getCost());
-        System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
+        System.out.println(cycle);
+
+        System.out.println(cycle.getStats());
 
         System.out.println("Tempo d'esecuzione: " + time + " millisecondi" );
     }
@@ -50,8 +51,9 @@ public class BranchAndBoundTest {
         TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
-        System.out.printf("Costo: %d\n", cycle.getCost());
-        System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
+        System.out.println(cycle);
+
+        System.out.println(cycle.getStats());
 
         System.out.println("Tempo d'esecuzione: " + time + " millisecondi" );
     }
@@ -72,8 +74,9 @@ public class BranchAndBoundTest {
         TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
-        System.out.printf("Costo: %d\n", cycle.getCost());
-        System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
+        System.out.println(cycle);
+
+        System.out.println(cycle.getStats());
 
         System.out.println("Tempo d'esecuzione: " + time + " millisecondi" );
     }
@@ -103,8 +106,9 @@ public class BranchAndBoundTest {
         TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
-        System.out.printf("Costo: %d\n", cycle.getCost());
-        System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
+        System.out.println(cycle);
+
+        System.out.println(cycle.getStats());
 
         System.out.println("Tempo d'esecuzione: " + time + " millisecondi" );
     }
@@ -129,8 +133,9 @@ public class BranchAndBoundTest {
         TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
-        System.out.printf("Costo: %d\n", cycle.getCost());
-        System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
+        System.out.println(cycle);
+
+        System.out.println(cycle.getStats());
 
         System.out.println("Tempo d'esecuzione: " + time + " millisecondi" );
     }
@@ -165,8 +170,9 @@ public class BranchAndBoundTest {
         TSPResult cycle = bnb.solveProblem();
         long time = System.currentTimeMillis()-time1;
 
-        System.out.printf("Costo: %d\n", cycle.getCost());
-        System.out.printf("Percorso: %s\n", cycle.getGraph().getEdges().toString());
+        System.out.println(cycle);
+
+        System.out.println(cycle.getStats());
 
         System.out.println("Tempo d'esecuzione: " + time + " millisecondi" );
     }
