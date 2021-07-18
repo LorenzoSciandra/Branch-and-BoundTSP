@@ -257,7 +257,7 @@ public class BranchAndBound {
 
                     synchronized (bar) {
                         bar.maxHint(minTSPResult.getTotalNodesCount());
-                        bar.stepTo(minTSPResult.getIntermediateNodesCount() + minTSPResult.getClosedNodes());
+                        bar.stepTo(minTSPResult.getTotalNodesCount() - minTSPResult.getOpenNodes());
                     }
                 }
 
