@@ -182,13 +182,11 @@
 
 
 \section{Introduzione}
-Il problema del commesso viaggiatore, spesso indicato come \textbf{Travelling Salesman Problem} (TSP), è uno dei casi di studio classici dell'informatica teorica e della teoria della complessità computazionale. Il nome nasce dalla sua più tipica rappresentazione: dato un insieme di città, e note le distanze tra ciascuna coppia di esse, trovare il tragitto di minima percorrenza che un commesso viaggiatore deve seguire per visitare tutte le città una ed una sola volta e ritornare alla città di partenza. Al problema TSP è associabile un grafo non orientato $G(V,E)$ con costi $c_{ij}$ associati agli archi, da cui si richiede di determinare un insieme di archi $C^* \subset E$ con costo minimo possibile. Tale insieme $C^*$ deve formare un \textit{circuito hamiltoniano}, cioè un ciclo che passi una ed una sola volta per ogni nodo del grafo. Il problema che analizzeremo è la versione simmetrica del TSP ossia $c_{ij} = c_{ji} \:\: \forall i,j \in V$, e quindi ogni arco è percorribile in entrambe le direzioni spendendo lo stesso costo.
+Il problema del commesso viaggiatore, spesso indicato come \textbf{Travelling Salesman Problem} (TSP), è uno dei casi di studio classici dell'informatica teorica e della teoria della complessità computazionale. Il nome nasce dalla sua più tipica rappresentazione: dato un insieme di città, e note le distanze tra ciascuna coppia di esse, trovare il tragitto di minima percorrenza che un commesso viaggiatore deve seguire per visitare tutte le città una ed una sola volta e ritornare alla città di partenza. Al problema TSP è associabile un grafo non orientato $G=(V,E)$ con costi $c_{ij}$ associati agli archi, da cui si richiede di determinare un insieme di archi $C^* \subset E$ con costo minimo possibile. Tale insieme $C^*$ deve formare un \textit{circuito hamiltoniano}, cioè un ciclo che passi una ed una sola volta per ogni nodo del grafo. Il problema che analizzeremo è la versione simmetrica del TSP ossia $c_{ij} = c_{ji} \:\: \forall i,j \in V$, e quindi ogni arco è percorribile in entrambe le direzioni spendendo lo stesso costo.
 \newline
 Il TSP è un problema NP-hard, nella precisione NP-completo e quindi algoritmi che lo risolvono all'ottimo richiedono una complessità in tempo più che polinomiale nell'istanza trattata ($P \neq NP)$.
 \newline
-Analizzeremo in questa tesina un approccio risolutivo basato sul \textbf{Branch \& Bound}, che garantisce di trovare l'ottimo del problema in un tempo che può essere esponenziale. L'idea alla base di questa tecnica algoritmica è quella di partizionare con la fase di \textbf{Branching} lo spazio delle soluzioni in più sottospazi, non per forza disgiunti la cui unione restituisca però tassativamente la regione iniziale. Avendo a che fare con spazi ridotti questi risulteranno di più facile analisi attraverso l'applicazione della fase di \textbf{Bounding}, in cui saranno valutate le soluzioni raggiungibili da una ipotetica ricerca nello spazio degli stati, permettendo di potare interi sottoalberi qualora la migliore soluzione garantita fosse peggiore di quella già ottenuta.
-
-\newpage
+Analizzeremo in questa tesina un approccio risolutivo basato sul \textbf{Branch \& Bound}, che garantisce di trovare l'ottimo del problema in un tempo che può essere esponenziale. L'idea alla base di questa tecnica algoritmica è quella di partizionare con la fase di \textbf{Branching} lo spazio delle soluzioni in più sottospazi, non per forza disgiunti la cui unione restituisca però tassativamente la regione iniziale. Avendo a che fare con spazi ridotti questi risulteranno di più facile analisi attraverso l'applicazione della fase di \textbf{Bounding}, in cui saranno valutate le soluzioni raggiungibili da una ipotetica ricerca nello spazio degli stati, permettendo di potare interi sottoalberi qualora la migliore soluzione garantita fosse peggiore di quella già ottenuta o non ammissibile.
 
 \section{Formulazione Matematica}
 Un circuito hamiltoniano è tale che su ogni nodo incidano esattamente due archi ed inoltre togliendo un nodo $n$ qualsiasi e i suoi due archi incidenti si ottiene un albero sui rimanenti nodi $|V| - 2$. Una possibile formalizzazione matematica del tsp che tiene conto di questo risulta quindi la seguente:
@@ -203,14 +201,14 @@ Un circuito hamiltoniano è tale che su ogni nodo incidano esattamente due archi
 \end{equation*}
 Il vincolo (1) impone che su ogni nodo $i \in V$ incidano esattamente due nodi, mentre (2) e (3) garantiscono che una volta scelto un nodo $n$, $V \setminus \{n\}$ risulti un albero e quindi abbia $|V|-2$ archi e sia privo di circuiti nell'albero. 
 \newline
-Dato un sottoinsieme di nodi $U \subseteq V$ definiamo $E(U)$ come $\{ (i,j) \:|\: i,j \in U \}$.  Osservando che ogni circuito sui nodi in $U$ deve avere $|U|$ archi in $E(U)$, per eliminare i circuiti abbiamo inserito il vincolo (3). Il vincolo (4) modella invece il dominio delle variabili decisionali che assumono valore 1 se il corrispondente arco viene inserito nel circuito hamiltoniano e 0 altrimenti.
+Dato un sottoinsieme di nodi $U \subseteq V$ definiamo $E(U)$ come l'insiem di archi $\{ (i,j) \:|\: i,j \in U \}$.  Osservando che ogni circuito sui nodi in $U$ deve avere $|U|$ archi in $E(U)$, per eliminare i circuiti abbiamo inserito il vincolo (3). Consideriamo $|U| \geq 3$, poichè se fosse per esempio uguale a 2 allora $E(U)$ conterrebbe solamente l'arco tra i due nodi e non ci sarebbe alcun circuito. Il vincolo (4) modella invece il dominio delle variabili decisionali che assumono valore 1 se il corrispondente arco viene inserito nel circuito hamiltoniano e 0 altrimenti.
 \newline
 Una volta che si ha a che fare con la formulazione matematica del TSP un possibile modo per produrre un rilassamento e quindi un \textbf{Lower Bound} al problema potrebbe essere quello di applicare il rilassamento continuo al vincolo d'interezza delle variabili (4).
 \newline
 L'approccio che abbiamo noi adottato prevede invece un rilassamento Lagrangiano sul vincolo (1) che ci conduce al problema di trovare il minimo 1-tree, una volta impostati i moltiplicatori lagrangiani $\lambda_i$ a 0, ossia eliminando il vincolo (1) per tutti i nodi tranne che per il nodo selezionato $n$.
 
 \section{Rilassamento Lagrangiano}
-Una volta introdotti dei moltiplicatori lagrangiani $\lambda_i$ per ogni nodo e portando in funzione obiettivo il vincolo otteniamo:
+Una volta introdotti dei moltiplicatori lagrangiani $\lambda_i$ per ogni nodo e portato in funzione obiettivo il vincolo otteniamo:
 \begin{equation*}
     \begin{split}
          \min z = & \sum_{(i,j) \in E} c_{ij} \cdot x_{ij} + \sum_{k\in V} \lambda_k (2 - \sum_{j\in V, k\neq j} x_{kj})\\
@@ -221,7 +219,7 @@ Una volta introdotti dei moltiplicatori lagrangiani $\lambda_i$ per ogni nodo e 
     \end{split}
 \end{equation*}
 Per comodità notazionale abbiamo portato in funzione obiettivo anche il moltiplicatore $\lambda_n$ per il nodo $n$, che verrà però impostato a 0. Dato che abbiamo rilassato vincoli di uguaglianza si potranno considerare i migliori moltiplicatori lagrangiani non solo maggiori o uguali a 0, ma anche negativi. Per valori fissati dei vari $\lambda_k$ il rilassamento lagrangiano è facilmente risolvibile con una procedura che mostreremo a breve, che consente di individuare l'1-tree di costo minimo.
-\newpage
+\newline
 Riscrivendo la funzione obiettivo otteniamo:
 \begin{equation*}
     l(\lambda) = \min \sum_{(i,j)\in E} ( c_{ij} - \lambda_i - \lambda_j) \cdot x_{ij} + 2 \cdot \sum_{k \in V} \lambda_k
@@ -236,7 +234,7 @@ Da questa riformulazione si può facilmente passare al duale lagrangiano che con
 \end{equation*}
 
 \section{1-Tree}
-Come precedentemente accennato una possibile e valida assegnazione dei moltiplicatori lagrangiani è quella di impostarli tutti a 0, andando di fatto ad eliminare i vincoli per ricondurci al problema di trovare l'1-tree di costo minimo.
+Come precedentemente accennato una possibile e valida assegnazione dei moltiplicatori lagrangiani risulta quella di impostarli tutti a 0, andando di fatto ad eliminare i vincoli per ricondurci al problema di trovare l'1-tree di costo minimo.
 \newline
 Dato un grafo $G=(V,E)$ non orientato ed un suo nodo $n$ chiamiamo \textbf{1-tree} un sottografo $H = (V, E_H)$ di $G$ con $E_H \subset E$ e con le seguenti proprietà:
 \begin{enumerate}
@@ -252,7 +250,7 @@ In altre parole il problema:
 \end{equation*}
 risulta essere un rilassamento per il problema del TSP simmetrico e la sua risoluzione restituisce quindi un lower bound per il valore ottimo del problema del TSP.
 \newline
-La formulazione matematica dell'1-tree risulta infatti essere la seguente:
+La formulazione matematica dell'1-tree è la seguente:
 \begin{equation*}
     \begin{split}
         \min z = & \sum_{(i,j) \in E} c_{ij} \cdot x_{ij}\\
@@ -262,16 +260,14 @@ La formulazione matematica dell'1-tree risulta infatti essere la seguente:
         (4) \:\:\:\:\:\: & x_{ij} \in \{0,1\} \:\:\:\:\:\: \forall (i,j) \in E\\
     \end{split}
 \end{equation*}
-Come si può notare questa risulta identica al rilassamento lagrangiano prima mostrato, una volta impostati i vari $\lambda_i = 0$.
-\newline
-Mostreremo ora la procedura per risolvere in tempo polinomiale il problema del minimo 1-tree.
-
-\newpage
-\begin{figure}
+Come si può notare questa appare identica al rilassamento lagrangiano prima mostrato, una volta impostati i vari $\lambda_i = 0$.
+\begin{figure}[h]
     \centering
     \includegraphics[scale=0.35]{files/1TreeEsempi.png}
     \caption{Nell'immagine 1 è proposta un'istanza di grafo $G(V,E)$ non orientato. I grafi 2 e 3 rappresentano invece due suoi 1-tree di cui il 3 è anche un circuito hamiltoniano.}
 \end{figure}
+\newline
+Mostreremo ora la procedura per risolvere in tempo polinomiale il problema del minimo 1-tree.
 
 \section{Calcolo del Lower Bound e Upper Bound}
 Una semplice procedura per calcolare un 1-tree di costo minimo e generare quindi un \textbf{lower bound} al problema del TSP segue i successivi passi:
@@ -288,7 +284,7 @@ Per quanto riguarda il calcolo e l'aggiornamento dell'\textbf{upper bound}, rico
 
 \section{Schema di Branch}
 Ci occuperemo ora di mostrare come sarà partizionata la regione ammissibile $S$ in più sottoinsiemi. Se non siamo nel caso fortunato in cui la soluzione del rilassamento è un circuito hamiltoniano, tale soluzione sarà allora un 1-tree che contiene esattamente un sottocircuito. Dobbiamo introdurre una regola di suddivisione il cui scopo è impedire il formarsi nei nodi figli di tale sottocircuito. Indichiamo con: $\{(i_1, j_1), (i_2,j_2),...,(i_r,j_r)\}$ gli archi che compongo tale sottocircuito. Il primo nodo figlio verrà generato imponendo che l'arco $(i_1,j_1)$ non faccia parte della soluzione, ossia impostando $x_{i_{1}j_{1}} = 0$. Il secondo nodo figlio sarà ottenuto imponendo che sia presente l'arco $(i_1,j_1)$, ma sia assente l'arco $(i_2,j_2)$, ovvero impostando $x_{i_{1}j_{1}} = 1$ e $x_{i_{2}j_{2}} = 0$. Il procedimento continua in questo modo fino all' r-esimo figlio che avrà tutti i primi $r-1$ archi del sottocircuito e non conterrà l'ultimo, quindi $\forall k = 1,2,...,r-1 \:\:x_{i_{k}j_{k}} = 1$ e $x_{i_{r}j_{r}} = 0$.
-\newpage
+\newline
 Ad ogni nodo saranno quindi associati due insiemi: 
 \begin{enumerate}
     \item $E_0$ contente tutti gli archi che non devono essere considerati;
@@ -300,7 +296,7 @@ Per ogni figlio si dovrà quindi risolvere un sottoproblema del tipo $S(E_0, E_1
 Per il calcolo del lower bound di un sotto problema $S(E_0, E_1)$ si usa la stessa procedura analizzata nel paragrafo precedente imponendo però la presenza degli archi $E_1$ ed escludendo quelli in $E_0$ per il calcolo dell'MST e nella scelta dei 2 archi per il nodo $n$.
 In particolare si risolverà sempre il problema dell'MST con l'algoritmo greedy di Kruskal, ma inizializzando l'insieme $E_T$ con gli archi in $E_1$ non incidenti sul nodo $n$, invece che impostarlo come insieme vuoto. Una volta fatto ciò durante l'esecuzione dell'algoritmo non dovranno essere presi in considerazione gli archi in $E_0$. Ottenuto l'albero di copertura $T$ a questi saranno aggiunti i migliori (con costo più basso) archi incidenti in $n$. Nel caso in cui $E_1$ contenesse tali archi saranno selezionati altrimenti si sceglieranno i migliori non presenti in $E_0$. 
 \newline
-Per il branching di un nodo interno, al sottocircuito $\{(i_1, j_1), (i_2,j_2),...,(i_r,j_r)\}$ individuato andranno tolti gli archi in $E_1$, che non possono non essere presenti nei figli che saranno generati. Una volta scremato l'insieme di archi si procederà alla stessa maniera e verranno estesi gli insieme $E_0$, $E_1$ del padre per generare i vari figli.
+Per il branching di un nodo interno, al sottocircuito $\{(i_1, j_1), (i_2,j_2),...,(i_r,j_r)\}$ individuato andranno tolti gli archi nell'insieme $E_1$ associato al nodo stesso, che non possono non essere presenti nei figli che saranno generati. Una volta scremato l'insieme di archi si procederà alla stessa maniera e verranno estesi gli insieme $E_0$, $E_1$ del padre per generare i vari figli.
 \newline
 Con questa regola di branching i nodi figli di un dato nodo continueranno ad essere sottoinsiemi della regione ammissibile del padre.
 
@@ -308,8 +304,8 @@ Con questa regola di branching i nodi figli di un dato nodo continueranno ad ess
 Un nodo dell'albero di branch $P_i$ viene chiuso quando:
 \begin{enumerate}
     \item $\hat{z} \leq LB(P_i)$, ossia quando il lower bound fornito è maggiore del migliore circuito hamiltoniano per ora trovato, in tal caso il nodo viene \textbf{chiuso per bound};
-    \item non si riesce a calcolare un 1-tree per il nodo, non c'è soluzione ammissibile per il rilassamento, in tal caso il nodo sarà \textbf{chiuso per inammissibilità};
-    \item l'1-tree generato dal rilassamento risulta essere un circuito hamiltoniano, il nodo verrà allora \textbf{chiuso per ottimalità}.
+    \item non si riesce a calcolare un 1-tree per il nodo: in questo caso non esiste soluzione ammissibile per il rilassamento e il nodo sarà \textbf{chiuso per inammissibilità};
+    \item l'1-tree generato dal rilassamento risulta essere un circuito hamiltoniano: il nodo verrà allora \textbf{chiuso perchè possibile candidato ottimo}.
 \end{enumerate}
 Nell'ultimo caso delineato qualora il nodo presentasse anche un costo migliore e quindi minore dell'attuale soluzione trovata, questa verrebbe aggiornata.
 \newline
@@ -317,6 +313,7 @@ Se alcuni nodi risultano aperti la scelta del prossimo nodo su cui fare Branch r
 
 \section{Analisi dell'implementazione}
 L'intero codice implementativo può essere visionato direttamente presso la pagina \href{https://github.com/LorenzoSciandra/TesinaOttimizzazioneCombinatoria}{GitHub} della tesina. Seguirà in questo paragrafo un'analisi delle scelte rilevanti compiute e uno sguardo sull'esecuzione degli algoritmi discussi su istanze medio/grandi di grafi.
+\newline
 \newline
 Per quanto riguarda la struttura dati utilizzata abbiamo implementato il grafo e quindi anche l'1-tree che di volta in volta calcoliamo con delle \textbf{liste di adiacenze} realizzate con HashMap. Nello specifico il grafo è visto come un'insieme di nodi, che a loro volta contengono insiemi di archi. Entrambi questi insiemi sono stati realizzati con HashMap per rendere più efficiente il recupero dell'informazione. Questa scelta risulta la più conveniente dal punto di vista della complessità per i compiti che dobbiamo svolgere. Un'esplorazione completa del grafo, così come lo spazio necessario per la memorizzazione richiede complessità $O(n+m)$, mentre la scansione degli adiacenti di un nodo risulta di costo minimo $O(|A(u)|)$, dove $A(u) = \{v \:|\: (u,v) \in E\}$.
 \newline
@@ -329,7 +326,7 @@ Tra le procedure più spesso eseguite troviamo sicuramente il calcolo del \textb
 Per quanto riguarda l'individuazione del sottociclo all'interno di un 1-tree che non è un circuito hamiltoniano abbiamo usato una \textbf{Depht First search} con complessità $O(n+m)$. L'idea è usare un vettore di padri per evitare di visitare più volte i nodi del grafo e per tener traccia del padre di ogni nodo. Conclusa l'esplorazione in profondità del grafo, semplicemente partendo dal nodo candidato $n$ e procedendo con i vettori dei padri a ritroso, si individua il ciclo che ci servirà per il fare il Branch di un problema $P_i$.
 \newline
 \newline
-La procedura centrale per la risoluzione del TSP è firmata \textit{solveProblem()} e restituisce la migliore istanza della classe \textit{CicloHamiltoniano}, ossia quella con costo minore. In caso in cui non vi fosse un ciclo hamiltoniano nel grafo di partenza verrebbe restituito il grafo originale. Questo metodo richiama gli algoritmi sopra descritti e molte altre procedure di supporto al fine di gestire una lista di \textit{SubProblem} e terminando l'esecuzione non appena quest'ultima viene completamente svuotata grazie alla chiusura di tutti i nodi. \'E qui che risiede tutta la complessità della risoluzione del TSP simmetrico, questo metodo infatti richiama sottoprocedure polinomiali in tempo, ma il numero di \textit{SubProblem} che deve gestire può essere esponenziale.
+La procedura centrale per la risoluzione del TSP è firmata  {\fontfamily{bch}\selectfont solveProblem()} e restituisce un'istanza della classe {\fontfamily{bch}\selectfont TSPResult}, contenente il ciclo hamiltoniano con costo minore e una serie di statistiche riguardo ai nodi analizzati nell'albero di Branch. In caso in cui non vi fosse un ciclo hamiltoniano nel grafo di partenza viene restituito il grafo originale. Questo metodo richiama gli algoritmi sopra descritti e molte altre procedure di supporto al fine di gestire una {\fontfamily{bch}\selectfont PriorityQueue} di {\fontfamily{bch}\selectfont SubProblem} e terminando l'esecuzione non appena quest'ultima viene completamente svuotata in seguito alla chiusura di tutti i nodi per una delle ragioni precedentemente indicate. \'E qui che risiede tutta la complessità della risoluzione del TSP simmetrico, questo metodo infatti richiama sottoprocedure polinomiali in tempo, ma il numero di {\fontfamily{bch}\selectfont SubProblem} che deve gestire può essere esponenziale.
 \newline
 La gestione dell'insieme dei SubProblem ancora aperti è stata realizzata con una coda di priorità \textbf{min-heap}, ossia con una struttura dati che presenta complessità $O(1)$ per leggere l'elemento con lower bound minore e $O(log\:n)$ per estrarre ed aggiungere un elemento.
 \newline
@@ -367,7 +364,6 @@ Ci troviamo con un primo 1-tree che non è un circuito hamiltoniano e sul quale 
     \item [] \underline{Nodo 4}: $\:E_0 = \{(5,4)\}$ e $E_1 = \{(1,3),(3,5)\}$;
     \item [] \underline{Nodo 5}: $\:E_0 = \{(4,1)\}$ e $E_1 = \{(1,3),(3,5),(5,4)\}$.
 \end{enumerate}
-\newpage
 Calcolando per ognuno dei nuovi nodi il corrispondente 1-tree abbiamo rispettivamente:
 \begin{center}
     \includegraphics[scale=0.26]{files/secondo1Tree.png}
@@ -378,7 +374,7 @@ Calcolando per ognuno dei nuovi nodi il corrispondente 1-tree abbiamo rispettiva
     \qquad
     \includegraphics[scale=0.26]{files/quinto1Tree.png}
 \end{center}
-Il nodo 2 viene chiuso per ottimalità in quanto presenta un circuito hamiltoniano di costo 17, che diventa la nostra prima soluzione. Il nodo 3 viene chiuso per Bound in quanto presenta un lower bound pari a 19, maggiore della nostra soluzione intera. Discorso analogo viene fatto per il nodo 4 con lower bound 20. Il nodo 5 rimane aperto dato che presenta lower bound 16 sul quale faremo branch. Il sottociclo che esso presenta è formato dagli archi $\{(1,2),(2,3),(3,1)\}$, scremato dagli archi in $E_1$ che devono essere presenti otteniamo $\{(1,2),(2,3)\}$.
+Il nodo 2 viene chiuso per ottimalità in quanto presenta un circuito hamiltoniano di costo 17, che diventa la nostra prima soluzione. Il nodo 3 viene chiuso per Bound in quanto presenta un lower bound pari a 19, maggiore della nostra soluzione intera. Discorso analogo viene fatto per il nodo 4 con lower bound 20. Il nodo 5 rimane invece aperto dato che presenta lower bound 16 sul quale faremo branch. Il sottociclo che esso presenta è formato dagli archi $\{(1,2),(2,3),(3,1)\}$, scremato dagli archi in $E_1$ otteniamo $\{(1,2),(2,3)\}$.
 \newline
 L'albero di Branch aggiornato con queste nuove considerazioni risulta essere:
 \begin{center}
@@ -397,7 +393,7 @@ Calcolando per ognuno dei nuovi nodi il corrispondente 1-tree abbiamo rispettiva
     \includegraphics[scale=0.33]{files/settimo1Tree.png}
 \end{center}
 Il nodo 6 viene chiuso per bound, dato che ci garantisce un lower bound pari a 19, contro il costo 17 del nostro ottimo attuale. Il nodo 7 viene invece chiuso per ottimalità dato che presenta un circuito hamiltoniano con costo 17, uguale al nostro ottimo attuale che quindi non viene aggiornato.
-\newpage
+\newline
 L'albero di Branch finale risulta:
 \begin{center}
     \includegraphics[scale=0.4]{files/alberoBranch3.png}
