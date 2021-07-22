@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.function.Function;
 
@@ -56,17 +57,13 @@ public class BasicCompleteGraphGenerator {
             graph.addNode(i);
         }
 
+        Random random = new Random(System.currentTimeMillis());
+
         for (int i = 1; i <= nodeCount; i++) {
             for (int j = i + 1; j <= nodeCount; j++) {
-                graph.addEdge(i, j, (int) (Math.random() * (maxCost - minCost) * minCost));
+                graph.addEdge(i, j, random.nextInt((maxCost - minCost) + 1) + minCost);
             }
         }
-
-        if (!graphFile.createNewFile()) {
-            System.err.printf("Cannot create file with path %s.\n", graphFile);
-            System.exit(2);
-        }
-
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(graphFile, false))) {
             Iterator<Edge<Integer, Integer>> iterator = graph.getEdges().iterator();
