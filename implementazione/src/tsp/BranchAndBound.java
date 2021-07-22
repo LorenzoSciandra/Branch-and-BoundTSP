@@ -213,7 +213,6 @@ public class BranchAndBound {
                     if (shouldWait) {
                         // To recognise when the problem has been completely analyzed, we can check if we're the
                         // last thread working on it. If so, just break the barrier and release all the threads.
-                        // There is still work to do... probably
                         if ((threadsIdleBarrier.getNumberWaiting() == (threadsIdleBarrier.getParties() - 1)) &&
                             (peek == null)) {
                             threadsIdleBarrier.reset();
@@ -221,6 +220,7 @@ public class BranchAndBound {
                             return null;
                         }
 
+                        // There is still work to do... probably
                         // Wait for all the other threads if we haven't finished yet, but there is no more work on this
                         // search level.
                         threadsIdleBarrier.await();
@@ -269,6 +269,7 @@ public class BranchAndBound {
                     e.printStackTrace();
                 }
             }
+
             return null;
         }
     }

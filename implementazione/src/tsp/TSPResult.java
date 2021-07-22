@@ -13,7 +13,7 @@ public class TSPResult {
     private ResultState state = ResultState.Unsolved;
 
     // Statskeeping
-    private final AtomicInteger openNodesCount = new AtomicInteger();
+    private final AtomicInteger totalNodesCount = new AtomicInteger();
     private final AtomicInteger closedNodesForBestCount = new AtomicInteger();
     private final AtomicInteger closedNodesForBound = new AtomicInteger();
     private final AtomicInteger closedNodesForUnfeasibilityCount = new AtomicInteger();
@@ -37,7 +37,7 @@ public class TSPResult {
     }
 
     public int getTotalNodesCount() {
-        return openNodesCount.get();
+        return totalNodesCount.get();
     }
 
     public int getClosedNodesForBestCount() {
@@ -134,7 +134,7 @@ public class TSPResult {
                                   - %d have been closed for bound;
                                   - %d have been closed because unfeasible.
                                  """,
-                             this.openNodesCount.get(),
+                             this.totalNodesCount.get(),
                              this.intermediateNodesCount.get(),
                              this.closedNodesForBestCount.get(),
                              this.closedNodesForBound.get(),
@@ -144,7 +144,7 @@ public class TSPResult {
     public synchronized void increaseNodeCount(int newNodeCount) {
         throwIfFinalised();
 
-        this.openNodesCount.addAndGet(newNodeCount);
+        this.totalNodesCount.addAndGet(newNodeCount);
     }
 
     public synchronized void increaseClosedNodesForBestCount(int i) {
