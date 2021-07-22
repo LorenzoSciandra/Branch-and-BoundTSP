@@ -13,11 +13,11 @@ public class TSPResult {
     private ResultState state = ResultState.Unsolved;
 
     // Statskeeping
-    private AtomicInteger openNodesCount = new AtomicInteger();
-    private AtomicInteger closedNodesForBestCount = new AtomicInteger();
-    private AtomicInteger closedNodesForBound = new AtomicInteger();
-    private AtomicInteger closedNodesForUnfeasibilityCount = new AtomicInteger();
-    private AtomicInteger intermediateNodesCount = new AtomicInteger();
+    private final AtomicInteger openNodesCount = new AtomicInteger();
+    private final AtomicInteger closedNodesForBestCount = new AtomicInteger();
+    private final AtomicInteger closedNodesForBound = new AtomicInteger();
+    private final AtomicInteger closedNodesForUnfeasibilityCount = new AtomicInteger();
+    private final AtomicInteger intermediateNodesCount = new AtomicInteger();
 
     public TSPResult(Graph<Integer, Integer, Integer> graph, int cost) {
         this.cost = cost;
@@ -178,7 +178,7 @@ public class TSPResult {
     }
 
     public synchronized int getOpenNodes() {
-        return getClosedNodes() + getIntermediateNodesCount() - getTotalNodesCount();
+        return getTotalNodesCount() - (getClosedNodes() + getIntermediateNodesCount());
     }
 
     public enum ResultState {

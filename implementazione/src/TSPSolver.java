@@ -90,6 +90,7 @@ public class TSPSolver {
      * It expects to find multiple rows. Every row must contain information about exactly ONE edge, formatted like
      * this regular expression: <br>
      * ([0-9]+)[ ,]+([0-9]+)[ ,]+([0-9.]+)<br>
+     * [NodeFrom] [NodeTo] [EdgeCost]
      * The cost can be a floating point number.<br><br>
      * If the first character of a line is not a space or a number, it will be skipped.
      * <p>
@@ -132,7 +133,7 @@ public class TSPSolver {
                     }
                     graph.addNodesEdge(from, to, weight);
                 } else {
-                    System.out.println(line);
+                    System.out.printf("[WARN]: During loading a line was malformed: \"%s\"", line);
                 }
             }
         } catch (FileNotFoundException e) {

@@ -180,11 +180,11 @@ public class BranchAndBound {
      * the evaluation doesn't update the lowerBound immediately.
      */
     private class NodeComputerTask implements Callable<Void> {
-        private AtomicInteger currentLevel;
-        private CyclicBarrier threadsIdleBarrier;
-        private AtomicBoolean computationCompleted;
-        private TSPResult minTSPResult;
-        private ProgressBar bar;
+        private final AtomicInteger currentLevel;
+        private final CyclicBarrier threadsIdleBarrier;
+        private final AtomicBoolean computationCompleted;
+        private final TSPResult minTSPResult;
+        private final ProgressBar bar;
 
         public NodeComputerTask(AtomicInteger currentLevel, CyclicBarrier threadsIdleBarrier,
                                 AtomicBoolean computationCompleted, TSPResult minTSPResult, ProgressBar bar) {
@@ -257,7 +257,7 @@ public class BranchAndBound {
 
                     synchronized (bar) {
                         bar.maxHint(minTSPResult.getTotalNodesCount());
-                        bar.stepTo(minTSPResult.getTotalNodesCount() - minTSPResult.getOpenNodes());
+                        bar.stepTo(minTSPResult.getClosedNodes() + minTSPResult.getIntermediateNodesCount());
                     }
                 }
 
