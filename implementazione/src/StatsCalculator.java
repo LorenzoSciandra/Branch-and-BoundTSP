@@ -61,7 +61,8 @@ public class StatsCalculator {
                                                 (nodeCount - 1L) * (nodeCount) / 2L,
                                                 threadCount);
 
-                for (BranchAndBound branchAndBound : graphs) {
+                for (int i = 0; i < graphs.size(); i++) {
+                    BranchAndBound branchAndBound = graphs.get(i);
 
 
                     long time1 = System.currentTimeMillis();
@@ -71,7 +72,11 @@ public class StatsCalculator {
                         TSPResult result = future.get(maxExecutionTime, TimeUnit.SECONDS);
                         long time = System.currentTimeMillis() - time1;
 
-                        logger.info("Completed computation after {} milliseconds", time);
+                        logger.info("{} Nodes, {} Threads (Run {}/{}) completed after {} milliseconds",
+                                    nodeCount,
+                                    threadCount,
+                                    i, repeatsForNodeCount,
+                                    time);
 /*                    logger.info(result);
                     logger.info("Created: {}; Interm: {}; Viable: {}; Bound: {}; Unfeas: {}",
                                 result.getTotalNodesCount(),
@@ -84,13 +89,23 @@ public class StatsCalculator {
                     } catch (InterruptedException | ExecutionException e) {
                         logger.error(e);
                     } catch (TimeoutException e) {
-                        logger.warn("Timeout reached");
+                        logger.warn("Timeout reached. There might be an exception right above or below ↕");
                         future.cancel(true);
                     }
                 }
             }
 
             stats.add(threadResults);
+        }
+
+        service.shutdown();
+        try {
+            if (!service.awaitTermination(5, TimeUnit.SECONDS)) {
+                service.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            service.shutdownNow();
+            e.printStackTrace();
         }
 
         for (BnBStats[] statBlock : stats) {
@@ -102,12 +117,10 @@ public class StatsCalculator {
                             threadStats.getAverageTime().getAverage(),
                             threadStats.getAverageTime().getCount(),
                             repeatsForNodeCount,
-                            threadStats.getBestTime(),
-                            threadStats.getWorstTime());
+                            threadStats.getBestTimeString(),
+                            threadStats.getWorstTimeString());
             }
         }
-
-        service.shutdownNow();
     }
 
     public static class BnBStats {
@@ -144,13 +157,22 @@ public class StatsCalculator {
             return averageTime;
         }
 
-        public long getBestTime() {
+        public Long getBestTime() {
             return bestTime.getValue();
+        }
+
+        public String getBestTimeString() {
+            return bestTime.getValue() == null ? "ND" : bestTime.getValue().toString();
         }
 
         public long getWorstTime() {
             return worstTime.getValue();
         }
+
+        public String getWorstTimeString() {
+            return worstTime.getValue() == null ? "ND" : worstTime.getValue().toString();
+        }
+
     }
 
     public static class ConditionalTime {
@@ -189,6 +211,9 @@ public class StatsCalculator {
         }
 
         public long getAverage() {
+            if (count == 0) {
+                return 0;
+            }
             return time / count;
         }
 
