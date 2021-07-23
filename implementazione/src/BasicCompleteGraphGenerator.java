@@ -1,6 +1,7 @@
 import graph.exceptions.GraphNodeMissingException;
 import graph.structures.Edge;
 import graph.structures.Graph;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -51,19 +52,7 @@ public class BasicCompleteGraphGenerator {
                                                 File.separatorChar,
                                                 nodeCount, minCost, maxCost));
 
-        Graph<Integer, Integer, Integer> graph = new Graph<>(false);
-
-        for (int i = 1; i <= nodeCount; i++) {
-            graph.addNode(i);
-        }
-
-        Random random = new Random(System.currentTimeMillis());
-
-        for (int i = 1; i <= nodeCount; i++) {
-            for (int j = i + 1; j <= nodeCount; j++) {
-                graph.addEdge(i, j, random.nextInt((maxCost - minCost) + 1) + minCost);
-            }
-        }
+        Graph<Integer, Integer, Integer> graph = generateCompleteGraph(nodeCount, minCost, maxCost);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(graphFile, false))) {
             Iterator<Edge<Integer, Integer>> iterator = graph.getEdges().iterator();
@@ -81,6 +70,29 @@ public class BasicCompleteGraphGenerator {
         }
 
         System.out.printf("Graph exported to %s\n", graphFile);
+    }
+
+    @NotNull
+    public static Graph<Integer, Integer, Integer> generateCompleteGraph(Integer nodeCount, Integer minCost,
+                                                                         Integer maxCost) throws GraphNodeMissingException {
+        return generateCompleteGraph(nodeCount, minCost, maxCost, new Random(System.currentTimeMillis()));
+    }
+
+    @NotNull
+    public static Graph<Integer, Integer, Integer> generateCompleteGraph(Integer nodeCount, Integer minCost,
+                                                                         Integer maxCost, Random random) throws GraphNodeMissingException {
+        Graph<Integer, Integer, Integer> graph = new Graph<>(false);
+
+        for (int i = 1; i <= nodeCount; i++) {
+            graph.addNode(i);
+        }
+
+        for (int i = 1; i <= nodeCount; i++) {
+            for (int j = i + 1; j <= nodeCount; j++) {
+                graph.addEdge(i, j, random.nextInt((maxCost - minCost) + 1) + minCost);
+            }
+        }
+        return graph;
     }
 
     private static Integer getFromArgsOrScanner(String[] args,

@@ -3,7 +3,7 @@ package tsp;
 import java.util.Collections;
 import java.util.List;
 
-public class UnsolvableProblemException extends Throwable {
+public class UnsolvableProblemException extends Exception {
     public final List<Integer> oneWayNodesKeys;
 
     public UnsolvableProblemException(List<Integer> oneWayNodesKeys) {

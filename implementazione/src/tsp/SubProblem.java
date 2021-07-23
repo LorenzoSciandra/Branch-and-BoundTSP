@@ -214,10 +214,10 @@ public class SubProblem implements Comparable<SubProblem> {
     @Override
     public int compareTo(@NotNull SubProblem o) {
         // First order by search tree level
-        int levelComparison = Integer.compare(this.subProblemTreeLevel, o.subProblemTreeLevel);
+        /*int levelComparison = Integer.compare(this.subProblemTreeLevel, o.subProblemTreeLevel);
         if (levelComparison != 0) {
             return levelComparison;
-        }
+        }*/
 
         // If two Nodes/SubProblems are at the same level, order them by lowest lowerBound
         int boundComparison = Integer.compare(this.lowerBound, o.lowerBound);

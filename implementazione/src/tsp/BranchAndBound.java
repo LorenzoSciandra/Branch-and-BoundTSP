@@ -21,6 +21,12 @@ public class BranchAndBound {
     private final Graph<Integer, Integer, Integer> graph;
     private final Integer candidateNode;
 
+    public boolean shouldTerminateIfError = true;
+
+    public BranchAndBound(Graph<Integer, Integer, Integer> graph) {
+        this(graph, graph.getNodes().get(0).getKey());
+    }
+
     public BranchAndBound(Graph<Integer, Integer, Integer> graph, Integer candidateNode) {
         this.graph = graph.clone();
         this.subProblemQueue = new PriorityBlockingQueue<>();
@@ -91,7 +97,7 @@ public class BranchAndBound {
                 }
             }
 
-            if (anErrorOccurred) {
+            if (anErrorOccurred && shouldTerminateIfError) {
                 System.exit(2);
             }
         }
@@ -206,18 +212,21 @@ public class BranchAndBound {
 
                     // If there is no next SubProblem or the SP is part of the next computation level, we should
                     // wait for all the threads to complete.
-                    shouldWait = peek == null || currentLevel.get() != peek.getSubProblemTreeLevel();
+                    shouldWait = peek == null;// || currentLevel.get() != peek.getSubProblemTreeLevel();
 
                     // If there is nothing to work on, just wait for more work.
                     // The Thread will be awoken again when all nodes on the current level have been expanded/closed.
                     if (shouldWait) {
                         // To recognise when the problem has been completely analyzed, we can check if we're the
                         // last thread working on it. If so, just break the barrier and release all the threads.
-                        if ((threadsIdleBarrier.getNumberWaiting() == (threadsIdleBarrier.getParties() - 1)) &&
-                            (peek == null)) {
-                            threadsIdleBarrier.reset();
-                            computationCompleted.set(true);
-                            return null;
+                        if (threadsIdleBarrier.getNumberWaiting() == (threadsIdleBarrier.getParties() - 1)) {
+                            if (peek == null) {
+                                threadsIdleBarrier.reset();
+                                computationCompleted.set(true);
+                                return null;
+                            } else {
+                                System.gc();
+                            }
                         }
 
                         // There is still work to do... probably

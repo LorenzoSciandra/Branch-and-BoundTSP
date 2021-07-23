@@ -61,7 +61,7 @@ public class TSPSolver {
         // Problem posing \\
         Graph<Integer, Integer, Integer> graph = loadGraph(graphPath);
 
-        BranchAndBound bnb = new BranchAndBound(graph, graph.getNodes().get(0).getKey());
+        BranchAndBound bnb = new BranchAndBound(graph);
 
         long time1 = System.currentTimeMillis();
         // Problem Solving \\
