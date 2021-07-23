@@ -5,6 +5,8 @@ import graph.structures.Graph;
 import graph.structures.Node;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.temporal.ChronoUnit;
@@ -17,6 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class BranchAndBound {
+    final static Logger logger = LogManager.getLogger(BranchAndBound.class);
+
     private final PriorityBlockingQueue<SubProblem> subProblemQueue;
     private final Graph<Integer, Integer, Integer> graph;
     private final Integer candidateNode;
@@ -50,7 +54,7 @@ public class BranchAndBound {
         if (oneWayNodesKeys.size() > 0) {
             if (ignoreOneWayNodes) {
                 oneWayNodesKeys.forEach(graph::removeNode);
-                System.out.printf("Removing %d nodes.\n", oneWayNodesKeys.size());
+                logger.info("Removing {} nodes.", oneWayNodesKeys.size());
             } else {
                 throw new UnsolvableProblemException(oneWayNodesKeys);
             }
@@ -93,7 +97,7 @@ public class BranchAndBound {
                     termination.take().isDone();
                 } catch (InterruptedException e) {
                     anErrorOccurred = true;
-                    e.printStackTrace();
+                    logger.error("", e);
                 }
             }
 
@@ -271,11 +275,11 @@ public class BranchAndBound {
                 }
 
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error(e);
             } catch (BrokenBarrierException e) {
                 // Print exception only if it is REALLY unexpected.
                 if (!computationCompleted.get()) {
-                    e.printStackTrace();
+                    logger.error(e);
                 }
             }
 
