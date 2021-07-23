@@ -322,15 +322,44 @@ Come si può notare questa è identica al rilassamento lagrangiano precedentemen
 \begin{frame}{Analisi dell'implementazione}
     Terminiamo la relazione con l'analisi delle prestazioni della nostra implementazione.
     
-    Su grafi banali il codice termina in qualche decina di millisecondi, generando una manciata di nodi nell'albero di branch.
-    
-    Con istanze di grafi contenenti centinaia di archi, si ottengono invece esecuzioni che durano decine di secondi e il processo continua esponenzialmente di questo passo. Quando il numero degli archi supera il migliaio, infatti, in poco più di un minuto d'esecuzione vengono generati ed esplorati 15000 nodi nell'albero di branch e l'esecuzione per terminare richiede decine di minuti.
+    Su grafi banali come quello che verrà mostrato nell'esempio conclusivo della tesina il codice termina in qualche decina di millisecondi generando una manciata di nodi nell'albero di branch. Come abbiamo potuto toccare con mano, durante i nostri test, il tempo necessario per l'esecuzione dipende fortemente dal numero di archi che popolano il grafo. Esecuzioni su grafi sparsi di 100 nodi richiedono decine di secondi, mentre esecuzioni su grafi completi anche solo di 20 nodi richiedono manciate di minuti.
 \end{frame}
 
 \begin{frame}{Analisi dell'implementazione}
-    Naturalmente i risultati ottenuti rispecchiano quella che è una procedura di risoluzione esponenziale per un problema NP-hard come il TSP.
+    Per ottenere un'analisi significativa delle prestazioni, abbiamo creato una classe Java {\fontfamily{bch}\selectfont BasicCompleteGraphGenerator} che ci permette di generare grafi completi una volta specificato il numero di nodi e il range entro il quale devono risiedere i costi degli archi. Ricordiamo che un grafo completo $G$ con $n$ nodi avrà $\frac{n\cdot (n-1)}{2}$ archi non orientati.
     
-    Per cercare di ridurre i tempi di calcolo, abbiamo esteso l'implementazione parallelizzando i calcoli su più thread. Una volta infatti che si è effettuato il branch di un nodo e sono stati generati tutti i figli di uno stesso livello questi possono tranquillamente essere computati simultaneamente per poi decidere se vadano chiusi per un qualche motivo o espansi con una ulteriore operazione di branch.
+    
+    Per dare maggiore rilevanza ai test effettuati abbiamo anche dato la possibilità di parallelizzare i calcoli su più thread. Una volta infatti che si è fatto il branch di un nodo e si ha generato tutti i figli di uno stesso livello questi possono tranquillamente essere computati simultaneamente per poi decidere se vadano chiusi per un qualche motivo o espansi con una ulteriore operazione di branch.
 \end{frame}
 
+\begin{frame}{Analisi dell'implementazione}
+Mostriamo ora i dati che abbiamo raccolto. L'esecuzione è avvenuta su un calcolatore con processore AMD Ryzen 7, 4.6GHz con 32 GB di RAM DDR4:
+\begin{center}
+ \begin{tabular}{||c c c c c||} 
+ \hline
+ N. Thread & N. Nodi & N. Archi & Nodi generati & Tempo d'esecuzione\\ [0.5ex] 
+ \hline\hline
+ 1 & 5 & 10 & 5 & 93ms\\ 
+ \hline
+ 1 & 10 & 45 & 559 & 149ms\\
+ \hline
+ 1 & 20 & 190 & ... & ...\\
+ \hline
+ \hline
+ 4 & 5 & 10 & 5 & 97ms\\ 
+ \hline
+ 4 & 10 & 45 & 559 & 133ms\\
+ \hline
+ 4 & 20 & 190 & ... & ...\\
+ \hline
+ \hline
+ 8 & 5 & 10 & 5 & 101ms\\ 
+ \hline
+ 8 & 10 & 45 & 559 & 155ms\\
+ \hline
+ 8 & 20 & 190 & ... & ...\\
+ \hline
+\end{tabular}
+\end{center}
+\end{frame}
 \end{document}

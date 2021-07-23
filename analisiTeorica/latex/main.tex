@@ -331,7 +331,37 @@ La procedura centrale per la risoluzione del TSP è firmata  {\fontfamily{bch}\s
 La gestione dell'insieme dei SubProblem ancora aperti è stata realizzata con una coda di priorità \textbf{min-heap}, ossia con una struttura dati che presenta complessità $O(1)$ per leggere l'elemento con lower bound minore e $O(log\:n)$ per estrarre ed aggiungere un elemento.
 \newline
 \newline
-Terminiamo questo paragrafo con l'analisi delle prestazioni dell'implementazione. Su grafi banali come quello che verrà mostrato nell'esempio conclusivo della tesina il codice termina in qualche decina di millisecondi generando una manciata di nodi nell'albero di branch. Con istanze di grafi contenenti centinaia di archi, si ottengono invece esecuzioni che durano decine di secondi e il processo continua esponenzialmente di questo passo. Quando il numero degli archi supera il migliaio, infatti, in poco più di un minuto d'esecuzione vengono generati ed esplorati 15000 nodi nell'albero di branch e l'esecuzione per terminare richiede decine di minuti. Ovviamente tutto questo rispecchia quella che è una procedura di risoluzione esponenziale per un problema NP-hard come il TSP. Per rendere il tutto più efficiente abbiamo parallelizzato i calcoli su più thread. Una volta infatti che si è fatto il branch di un nodo e si ha generato tutti i figli di uno stesso livello questi possono tranquillamente essere computati simultaneamente per poi decidere se vadano chiusi per un qualche motivo o espansi con una ulteriore operazione di branch.
+Terminiamo questo paragrafo con l'analisi delle prestazioni dell'implementazione. Su grafi banali come quello che verrà mostrato nell'esempio conclusivo della tesina il codice termina in qualche decina di millisecondi generando una manciata di nodi nell'albero di branch. Come abbiamo potuto toccare con mano, durante i nostri test, il tempo necessario per l'esecuzione dipende fortemente dal numero di archi che popolano il grafo. Esecuzioni su grafi sparsi di 100 nodi richiedono decine di secondi, mentre esecuzioni su grafi completi anche solo di 20 nodi richiedono manciate di minuti. Per ottenere un'analisi significativa delle prestazioni, abbiamo creato una classe Java {\fontfamily{bch}\selectfont BasicCompleteGraphGenerator} che, come si evince dal nome stesso, ci permette di generare grafi completi una volta specificato il numero di nodi e il range entro il quale devono risiedere i costi degli archi. Ricordiamo che un grafo completo $G$ con $n$ nodi avrà $\frac{n\cdot (n-1)}{2}$ archi non orientati. Per dare maggiore rilevanza ai test effettuati abbiamo anche dato la possibilità di parallelizzare i calcoli su più thread. Una volta infatti che si è fatto il branch di un nodo e si ha generato tutti i figli di uno stesso livello questi possono tranquillamente essere computati simultaneamente per poi decidere se vadano chiusi per un qualche motivo o espansi con una ulteriore operazione di branch.
+\newline
+Mostriamo ora i dati che abbiamo raccolto. L'esecuzione è avvenuta su un calcolatore con processore AMD Ryzen 7, 4.6GHz con 32 GB di RAM DDR4:
+\begin{center}
+ \begin{tabular}{||c c c c c||} 
+ \hline
+ N. Thread & N. Nodi & N. Archi & Nodi generati & Tempo d'esecuzione\\ [0.5ex] 
+ \hline\hline
+ 1 & 5 & 10 & 5 & 93ms\\ 
+ \hline
+ 1 & 10 & 45 & 559 & 149ms\\
+ \hline
+ 1 & 20 & 190 & ... & ...\\
+ \hline
+ \hline
+ 4 & 5 & 10 & 5 & 97ms\\ 
+ \hline
+ 4 & 10 & 45 & 559 & 133ms\\
+ \hline
+ 4 & 20 & 190 & ... & ...\\
+ \hline
+ \hline
+ 8 & 5 & 10 & 5 & 101ms\\ 
+ \hline
+ 8 & 10 & 45 & 559 & 155ms\\
+ \hline
+ 8 & 20 & 190 & ... & ...\\
+ \hline
+\end{tabular}
+\end{center}
+Ovviamente tutto questo rispecchia quella che è una procedura di risoluzione esponenziale per un problema NP-hard come il TSP.
 \section{Esempio}
 Risolveremo in questo paragrafo un esercizio sul TSP simmetrico preso da una vecchia prova d'esame del corso di Ottimizzazione Combinatoria datata 10/06/2015.
 \newline
