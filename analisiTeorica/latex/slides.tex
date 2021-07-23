@@ -333,33 +333,69 @@ Come si può notare questa è identica al rilassamento lagrangiano precedentemen
 \end{frame}
 
 \begin{frame}{Analisi dell'implementazione}
-Mostriamo ora i dati che abbiamo raccolto. L'esecuzione è avvenuta su un calcolatore con processore AMD Ryzen 7, 4.6GHz con 32 GB di RAM DDR4:
-\begin{center}
+Mostriamo ora i dati che abbiamo raccolto con un calcolatore con processore AMD Ryzen 7 4.6GHz e 32 GB di RAM DDR4:
+    \begin{center}
+    \resizebox{6.5cm}{!}{
  \begin{tabular}{||c c c c c||} 
  \hline
- N. Thread & N. Nodi & N. Archi & Nodi generati & Tempo d'esecuzione\\ [0.5ex] 
+ Thread & Nodi & Archi & Nodi generati & Tempo d'esecuzione\\ [0.5ex] 
  \hline\hline
  1 & 5 & 10 & 5 & 93ms\\ 
  \hline
  1 & 10 & 45 & 559 & 149ms\\
+ %\hline
+ %1 & 13 & 78 & 7293 & 250ms\\
  \hline
- 1 & 20 & 190 & ... & ...\\
+ 1 & 15 & 105 & ... & ...\\
+ \hline
+ 1 & 16 & 120 & ... & ...\\
+ \hline
+ 1 & 17 & 136 & ... & ...\\
+ \hline
+ 1 & 18 & 153 & ... & ...\\
  \hline
  \hline
  4 & 5 & 10 & 5 & 97ms\\ 
  \hline
  4 & 10 & 45 & 559 & 133ms\\
  \hline
- 4 & 20 & 190 & ... & ...\\
+ %4 & 13 & 78 & 7293 & 234ms\\
+ %\hline
+ 4 & 15 & 105 & ... & ...\\
+ \hline
+ 4 & 16 & 120 & ... & ...\\
+ \hline
+ 4 & 17 & 136 & ... & ...\\
+ \hline
+ 4 & 18 & 153 & ... & ...\\
  \hline
  \hline
  8 & 5 & 10 & 5 & 101ms\\ 
  \hline
  8 & 10 & 45 & 559 & 155ms\\
+ %\hline
+ %8 & 13 & 78 & 7293 & 223ms\\
  \hline
- 8 & 20 & 190 & ... & ...\\
+ 8 & 15 & 105 & ... & ...\\
+ \hline
+ 8 & 16 & 120 & ... & ...\\
+ \hline
+ 8 & 17 & 136 & ... & ...\\
+ \hline
+ 4 & 18 & 153 & ... & ...\\
  \hline
 \end{tabular}
+}
 \end{center}
+
+
 \end{frame}
+
+\begin{frame}{Analisi dell'implementazione}
+    I puntini nella tabella rappresentano esecuzioni che non sono terminate a causa della mancanza di RAM. Il {\fontfamily{bch}\selectfont Garbage Collector} di Java permette di eliminare tutte le classi non più utili, ma il numero di {\fontfamily{bch}\selectfont SubPorblem} che sono ancora attivi nella frontiera dell'albero di branch può essere esponenzialmente grande. Basti pensare al fatto che non tutti i {\fontfamily{bch}\selectfont SubProblem} rimangono aperti e generano figli, ma coloro che lo fanno possono avere un branching factor molto grande.
+    
+    
+    Ovviamente tutto questo non ci sorprende più di tanto poichè rispecchia quella che è una procedura di risoluzione esponenziale per un problema NP-hard come il TSP.
+\end{frame}
+
 \end{document}
