@@ -2,15 +2,13 @@ package tsp;
 
 import graph.structures.Edge;
 import graph.structures.Graph;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TSPResult {
-
-    private Graph<Integer, Integer, Integer> graph;
-    private int cost;
-    private ResultState state = ResultState.Unsolved;
 
     // Statskeeping
     private final AtomicInteger totalNodesCount = new AtomicInteger();
@@ -18,6 +16,10 @@ public class TSPResult {
     private final AtomicInteger closedNodesForBound = new AtomicInteger();
     private final AtomicInteger closedNodesForUnfeasibilityCount = new AtomicInteger();
     private final AtomicInteger intermediateNodesCount = new AtomicInteger();
+    private Graph<Integer, Integer, Integer> graph;
+    private int cost;
+    private ResultState state = ResultState.Unsolved;
+    private Long computationTime = null;
 
     public TSPResult(Graph<Integer, Integer, Integer> graph, int cost) {
         this.cost = cost;
@@ -57,7 +59,9 @@ public class TSPResult {
     }
 
     public int getClosedNodes() {
-        return this.closedNodesForBestCount.get() + this.closedNodesForBound.get() + this.closedNodesForUnfeasibilityCount.get();
+        return this.closedNodesForBestCount.get() +
+               this.closedNodesForBound.get() +
+               this.closedNodesForUnfeasibilityCount.get();
     }
 
     public void newSolutionFound(Graph<Integer, Integer, Integer> graph, int cost) {
@@ -179,6 +183,14 @@ public class TSPResult {
 
     public synchronized int getOpenNodes() {
         return getTotalNodesCount() - (getClosedNodes() + getIntermediateNodesCount());
+    }
+
+    public Optional<Long> getComputationTime() {
+        return Optional.ofNullable(this.computationTime);
+    }
+
+    public void setComputationTime(@NotNull Long l) {
+        this.computationTime = l;
     }
 
     public enum ResultState {
