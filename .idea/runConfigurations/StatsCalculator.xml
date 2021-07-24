@@ -2,7 +2,8 @@
   <configuration default="false" name="StatsCalculator" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="StatsCalculator" />
     <module name="TesinaOttimizzazioneCombinatoria" />
-    <option name="PROGRAM_PARAMETERS" value="5 20 300 500 300 10" />
+    <option name="PROGRAM_PARAMETERS" value="15 15 300 500 300 50 1627125485059" />
+    <option name="VM_PARAMETERS" value="-Xmx24G" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
