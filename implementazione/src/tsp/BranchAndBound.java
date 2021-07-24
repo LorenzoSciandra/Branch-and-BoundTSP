@@ -21,11 +21,10 @@ import java.util.stream.Collectors;
 public class BranchAndBound {
     final static Logger logger = LogManager.getLogger(BranchAndBound.class);
 
-    private final PriorityBlockingQueue<SubProblem> subProblemQueue;
     private final Graph<Integer, Integer, Integer> graph;
     private final Integer candidateNode;
-
     public boolean shouldTerminateIfError = true;
+    private PriorityBlockingQueue<SubProblem> subProblemQueue;
 
     public BranchAndBound(Graph<Integer, Integer, Integer> graph) {
         this(graph, graph.getNodes().get(0).getKey());
@@ -78,35 +77,47 @@ public class BranchAndBound {
         }
 
         ExecutorService threadPool = Executors.newFixedThreadPool(threadNumber);
-        ExecutorCompletionService<Void> termination = new ExecutorCompletionService<>(threadPool);
+        ArrayList<Future<Void>> subProblemComputers = new ArrayList<>(threadNumber);
 
         try (ProgressBar bar = pbb.build()) {
+            long startTime = System.currentTimeMillis();
             AtomicInteger currentLevel = new AtomicInteger(0);
             AtomicBoolean computationCompleted = new AtomicBoolean(false);
             CyclicBarrier threadsIdleBarrier = new CyclicBarrier(threadNumber, currentLevel::incrementAndGet);
 
             for (int i = 0; i < threadNumber; i++) {
-                termination.submit(new NodeComputerTask(currentLevel, threadsIdleBarrier, computationCompleted,
-                                                        minTSPResult, bar));
+                subProblemComputers.add(threadPool.submit(new NodeComputerTask(currentLevel,
+                                                                               threadsIdleBarrier,
+                                                                               computationCompleted,
+                                                                               minTSPResult,
+                                                                               bar)));
             }
 
-            boolean anErrorOccurred = false;
-
-            for (int tasksHandled = 0; tasksHandled < threadNumber; tasksHandled++) {
-                try {
-                    termination.take().isDone();
-                } catch (InterruptedException e) {
-                    anErrorOccurred = true;
-                    logger.error("", e);
-                }
+            for (Future<Void> subProblemComputer : subProblemComputers) {
+                subProblemComputer.get();
             }
 
-            if (anErrorOccurred && shouldTerminateIfError) {
+            minTSPResult.setComputationTime(System.currentTimeMillis() - startTime);
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("", e);
+
+            for (Future<Void> subProblemComputer : subProblemComputers) {
+                subProblemComputer.cancel(true);
+            }
+
+            if (shouldTerminateIfError) {
                 System.exit(2);
             }
+        } finally {
+            // Reset the queue to avoid memory leaks. A better solution would be to re-write this class to work only
+            // on static methods without this queue as an instance variable. The only instance variables that should
+            // be kept are the ones needed to re-run the exact same problem a second time.
+            subProblemQueue = new PriorityBlockingQueue<>();
+            System.gc();
         }
 
         threadPool.shutdown();
+
         try {
             if (!threadPool.awaitTermination(5, TimeUnit.SECONDS)) {
                 threadPool.shutdownNow();
