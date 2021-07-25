@@ -309,65 +309,91 @@ Nell'ultimo caso delineato qualora il nodo presentasse anche un costo migliore e
 \newline
 Se alcuni nodi risultano aperti la scelta del prossimo nodo su cui fare Branch ricade su quello che presenta un Lower Bound minore, ossia quello che ci permette, in caso di ottimalità, di chiudere prima eventuali nodi aperti e terminare l'esecuzione. Un tale approccio viene detto \textbf{Best First}.
 
+
 \section{Analisi dell'implementazione}
 L'intero codice implementativo può essere visionato direttamente presso la pagina \href{https://github.com/LorenzoSciandra/TesinaOttimizzazioneCombinatoria}{GitHub} della tesina. Seguirà in questo paragrafo un'analisi delle scelte rilevanti compiute e uno sguardo sull'esecuzione degli algoritmi discussi su istanze medio/grandi di grafi.
 \newline
 \newline
 Per quanto riguarda la struttura dati utilizzata abbiamo implementato il grafo e quindi anche l'1-tree che di volta in volta calcoliamo con delle \textbf{liste di adiacenze} realizzate con HashMap. Nello specifico il grafo è visto come un'insieme di nodi, che a loro volta contengono insiemi di archi. Entrambi questi insiemi sono stati realizzati con HashMap per rendere più efficiente il recupero dell'informazione. Questa scelta risulta la più conveniente dal punto di vista della complessità per i compiti che dobbiamo svolgere. Un'esplorazione completa del grafo, così come lo spazio necessario per la memorizzazione richiede complessità $O(n+m)$, mentre la scansione degli adiacenti di un nodo risulta di costo minimo $O(|A(u)|)$, dove $A(u) = \{v \:|\: (u,v) \in E\}$.
 \newline
-Rispetto alla scelta di usare delle matrici di incidenza, risulta svantaggiato il controllo dell'esistenza di un arco nel grafo che richiede tempo $O(1)$ con le matrici di adiacenza e $O(|A(u)|)$ con le liste di adiacenza. Dato che quest'operazione non viene da noi mai eseguita, mentre risultano centrali l'operazione di scansione degli adiacenti di un nodo e dell'intero grafo, le liste di adiacenza si dimostrano ottime. Questi compiti richiedono infatti rispettivamente complessità $O(n)$ e $O(n^2)$ con una matrice di adiacenza. 
+Rispetto alla scelta di usare delle matrici di incidenza, risulta svantaggiato il controllo dell'esistenza di un arco nel grafo che richiede tempo $O(1)$ con le matrici di adiacenza e $O(|A(u)|)$ con le liste di adiacenza. Dato che quest'operazione non viene da noi mai eseguita, mentre risultano centrali l'operazione di scansione degli adiacenti di un nodo e dell'intero grafo, le liste di adiacenza si dimostrano ottime. Questi compiti richiedono infatti rispettivamente complessità $O(n)$ e $O(n^2)$ con una matrice di adiacenza.
 \newline
 \newline
-Tra le procedure più spesso eseguite troviamo sicuramente il calcolo del \textbf{Minimum Spanning Tree}, che viene ripetuto per ogni nodo dell'albero di Branch che andiamo a generare. Per tale calcolo abbiamo implementato l'algoritmo greedy proposto da Kruskal che presenta complessità ottima $O(m \cdot log\:n)$. Tale costo risiede principalmente nell'ordinamento decrescente iniziale degli archi, e nell'uso degli Mfset per controllare che un i-esimo arco possa essere incluso in soluzione con la certezza che non formi un ciclo. Ricordiamo che il Merge find set rappresenta una partizione di un insieme finito in sottoinsiemi disgiunti dette componenti o parti. Le operazioni ammesse permettono di controllare a quale componente appartiene un certo elemento e di unire due componenti diverse. Entrambe le operazioni presentano complessità $O(log\: n)$, dove $n$ rappresenta la cardinalità dell'insieme analizzato.
+Tra le procedure più spesso eseguite troviamo sicuramente il calcolo del \textbf{Minimum Spanning Tree}, che viene ripetuto per ogni nodo dell'albero di Branch che andiamo a generare. Per tale calcolo abbiamo implementato l'algoritmo greedy proposto da Kruskal che presenta complessità ottima $O(m \cdot log\:n)$. Tale costo risiede principalmente nell'ordinamento decrescente iniziale degli archi, e nell'uso di Merge Find Set per controllare che un i-esimo arco possa essere incluso in soluzione con la certezza che non formi un ciclo. Ricordiamo che il Merge find set rappresenta una partizione di un insieme finito in sottoinsiemi disgiunti dette componenti o parti. Le operazioni ammesse permettono di controllare a quale componente appartiene un certo elemento e di unire due componenti diverse. Entrambe le operazioni presentano complessità $O(log\: n)$, dove $n$ rappresenta la cardinalità dell'insieme analizzato.
 \newline
 \newline
 Per quanto riguarda l'individuazione del sottocircuito all'interno di un 1-tree che non è un circuito hamiltoniano abbiamo usato una \textbf{Depht First search} con complessità $O(n+m)$. L'idea è usare un vettore di padri per evitare di visitare più volte i nodi del grafo e per tener traccia del padre di ogni nodo. Conclusa l'esplorazione in profondità del grafo, semplicemente partendo dal nodo candidato $n$ e procedendo con i vettori dei padri a ritroso, si individua il ciclo che ci servirà per il fare il Branch di un problema $P_i$.
 \newline
 \newline
-La procedura centrale per la risoluzione del TSP è firmata  {\fontfamily{bch}\selectfont solveProblem()} e restituisce un'istanza della classe {\fontfamily{bch}\selectfont TSPResult}, contenente il circuito hamiltoniano con costo minore e una serie di statistiche riguardo ai nodi analizzati nell'albero di Branch. In caso in cui non vi fosse un circuito hamiltoniano nel grafo di partenza viene restituito il grafo originale. Questo metodo richiama gli algoritmi sopra descritti e molte altre procedure di supporto al fine di gestire una {\fontfamily{bch}\selectfont PriorityQueue} di {\fontfamily{bch}\selectfont SubProblem} e terminando l'esecuzione non appena quest'ultima viene completamente svuotata in seguito alla chiusura di tutti i nodi per una delle ragioni precedentemente indicate. \'E qui che risiede tutta la complessità della risoluzione del TSP simmetrico, questo metodo infatti richiama sottoprocedure polinomiali in tempo, ma il numero di {\fontfamily{bch}\selectfont SubProblem} che deve gestire può essere esponenziale.
+La procedura centrale per la risoluzione del TSP è firmata  {\fontfamily{bch}\selectfont solveProblem()} e restituisce un'istanza della classe {\fontfamily{bch}\selectfont TSPResult}, contenente il circuito hamiltoniano con costo minore e una serie di statistiche riguardo ai nodi analizzati nell'albero di Branch. Nel caso in cui non vi fosse un circuito hamiltoniano nel grafo di partenza, viene restituito il grafo originale. Questo metodo richiama gli algoritmi sopra descritti e molte altre procedure di supporto al fine di gestire una {\fontfamily{bch}\selectfont PriorityQueue} di {\fontfamily{bch}\selectfont SubProblem} e terminando l'esecuzione non appena quest'ultima viene completamente svuotata in seguito alla chiusura di tutti i nodi per una delle ragioni precedentemente indicate. \'E qui che risiede tutta la complessità della risoluzione del TSP simmetrico. Questo metodo infatti richiama sottoprocedure polinomiali in tempo, ma il numero di {\fontfamily{bch}\selectfont SubProblem} che deve gestire può essere esponenziale.
 \newline
 La gestione dell'insieme dei SubProblem ancora aperti è stata realizzata con una coda di priorità \textbf{min-heap}, ossia con una struttura dati che presenta complessità $O(1)$ per leggere l'elemento con lower bound minore e $O(log\:n)$ per estrarre ed aggiungere un elemento.
 \newline
 \newline
-Terminiamo questo paragrafo con l'analisi delle prestazioni dell'implementazione. Su grafi banali come quello che verrà mostrato nell'esempio conclusivo della tesina il codice termina in qualche decina di millisecondi generando una manciata di nodi nell'albero di branch. Come abbiamo potuto toccare con mano, durante i nostri test, il tempo necessario per l'esecuzione dipende fortemente dal numero di archi che popolano il grafo. Esecuzioni su grafi sparsi di 100 nodi richiedono decine di secondi, mentre esecuzioni su grafi completi anche solo di 20 nodi richiedono manciate di minuti. Per ottenere un'analisi significativa delle prestazioni, abbiamo creato una classe Java {\fontfamily{bch}\selectfont BasicCompleteGraphGenerator} che, come si evince dal nome stesso, ci permette di generare grafi completi una volta specificato il numero di nodi e il range entro il quale devono risiedere i costi degli archi. Ricordiamo che un grafo completo $G$ con $n$ nodi avrà $\frac{n\cdot (n-1)}{2}$ archi non orientati. Per dare maggiore rilevanza ai test effettuati abbiamo anche dato la possibilità di parallelizzare i calcoli su più thread. Una volta infatti che si è fatto il branch di un nodo e si ha generato tutti i figli di uno stesso livello questi possono tranquillamente essere computati simultaneamente per poi decidere se vadano chiusi per un qualche motivo o espansi con una ulteriore operazione di branch.
+Terminiamo questo paragrafo con l'analisi delle prestazioni dell'implementazione. Su grafi banali come quello che verrà mostrato nell'esempio conclusivo della tesina il codice termina in qualche decina di millisecondi generando una manciata di nodi nell'albero di branch.\newline
+Come abbiamo potuto toccare con mano durante i nostri test, il tempo necessario per l'esecuzione dipende fortemente dal numero di archi che popolano il grafo. Esecuzioni su grafi sparsi di 100 nodi richiedono decine di secondi, mentre esecuzioni su grafi completi anche solo di 20 nodi richiedono potenzialmente diversi minuti. Per ottenere un'analisi significativa delle prestazioni, abbiamo creato una classe Java {\fontfamily{bch}\selectfont BasicCompleteGraphGenerator} che, come si evince dal nome stesso, ci permette di generare grafi completi una volta specificato il numero di nodi e il range entro il quale devono risiedere i costi degli archi. Ricordiamo che un grafo completo $G$ con $n$ nodi avrà $\frac{n\cdot (n-1)}{2}$ archi non orientati.\newline
+Per dare maggiore rilevanza ai test effettuati abbiamo anche dato la possibilità di parallelizzare i calcoli su più thread. Una volta infatti che si è fatto il branch di un nodo e si ha generato tutti i figli di uno stesso livello questi possono tranquillamente essere computati simultaneamente per poi decidere se vadano chiusi per un qualche motivo o espansi con una ulteriore operazione di branch.
 \newline
-Mostriamo ora i dati che abbiamo raccolto. L'esecuzione è avvenuta su un calcolatore con processore AMD Ryzen 7 4.6GHz con 32 GB di RAM DDR4:
+Mostriamo ora i dati che abbiamo raccolto. L'esecuzione è avvenuta su un calcolatore con le seguenti caratteristiche:
+\begin{itemize}
+    \item Processore AMD Ryzen 7 5800X (4.6GHz)
+    \item 32GB di RAM DDR4 (3200MHz)
+\end{itemize}
 \begin{center}
- \begin{tabular}{||c c c c c||} 
- \hline
- Thread & $V\in G$ & $E\in G$ & Nodi albero di branch & Tempo d'esecuzione\\ [0.5ex] 
- \hline\hline
- 1 & 5 & 10 & & 12ms\\ 
- \hline
- 2 & 5 & 10 & & 12ms\\
- \hline
- 4 & 5 & 10 &  & 10ms\\ 
- \hline
- 8 & 5 & 10 &  & 10ms\\ 
- \hline
- \hline
- 1 & 10 & 45 &  & 57ms\\
- \hline
- 2 & 10 & 45 &  & 51ms\\
- \hline
- 4 & 10 & 45 &  & 26ms\\
- \hline
- 8 & 10 & 45 &  & 19ms\\
- \hline
- \hline
- 1 & 15 & 105 &  & \\
- \hline
- 2 & 15 & 105 &  & \\
- \hline
- 4 & 15 & 105 &  & \\
- \hline
- 8 & 15 & 105 &  & \\
- \hline
-\end{tabular}
+    \begin{tabular}{||c c c c c||}
+        \hline
+        Thread & $V\in G$ & $E\in G$ & \# sottoproblemi medio & Tempo d'esecuzione medio\\ [0.5ex]
+        \hline\hline
+        1      & 5        & 10       & 9                      & <1ms (500 campioni)      \\
+        \hline
+        2      & 5        & 10       & 10                     & <1ms (500 campioni)      \\
+        \hline
+        4      & 5        & 10       & 10                     & <1ms (500 campioni)      \\
+        \hline
+        8      & 5        & 10       & 10                     & <1ms (500 campioni)      \\
+        \hline
+        \hline
+        1      & 10       & 45       & 3043                   & 72ms (500 campioni)      \\
+        \hline
+        2      & 10       & 45       & 3043                   & 66ms (500 campioni)      \\
+        \hline
+        4      & 10       & 45       & 3044                   & 28ms (500 campioni)      \\
+        \hline
+        8      & 10       & 45       & 3044                   & 16ms (500 campioni)      \\
+        \hline
+        \hline
+        1      & 13       & 105      & 130192                 & 4202ms (500 campioni)    \\
+        \hline
+        2      & 13       & 105      & 130192                 & 4176ms (500 campioni)    \\
+        \hline
+        4      & 13       & 105      & 130186                 & 1888ms (500 campioni)    \\
+        \hline
+        8      & 13       & 105      & 130164                 & 1004ms (500 campioni)    \\
+        \hline
+        \hline
+        1      & 15       & 105      & 811302                 & 33359ms (30 campioni)    \\
+        \hline
+        2      & 15       & 105      & 811302                 & 33240ms (30 campioni)    \\
+        \hline
+        4      & 15       & 105      & 811306                 & 18562ms (30 campioni)    \\
+        \hline
+        8      & 15       & 105      & 811306                 & 9031ms (30 campioni)     \\
+        \hline
+        \hline
+        1      & 20       & 190      & >2.5M                  & ...                      \\
+        \hline
+        2      & 20       & 190      & >2.5M                  & ...                      \\
+        \hline
+        4      & 20       & 190      & >2.5M                  & ...                      \\
+        \hline
+        8      & 20       & 190      & >2.5M                  & ...                      \\
+        \hline
+    \end{tabular}
 \end{center}
-I puntini nella tabella rappresentano esecuzioni che non sono terminate a causa della mancanza di RAM. Il {\fontfamily{bch}\selectfont Garbage Collector} di Java permette di eliminare tutte le classi non più utili, ma il numero di {\fontfamily{bch}\selectfont SubPorblem} che sono ancora attivi nella frontiera dell'albero di branch può essere esponenzialmente grande. Basti pensare al fatto che non tutti i {\fontfamily{bch}\selectfont SubProblem} rimangono aperti e generano figli, ma coloro che lo fanno possono avere un branching factor molto grande.
+I puntini nella tabella rappresentano esecuzioni che non sono terminate a causa della mancanza di RAM per poter ospitare tutti i sottoproblemi ancora da valutare. Il {\fontfamily{bch}\selectfont Garbage Collector} di Java si occupa di eliminare tutte le istanze di classi non più referenziate, ma il numero di {\fontfamily{bch}\selectfont SubProblem} che sono ancora attivi nella frontiera dell'albero di branch può essere esponenzialmente grande. Basti pensare al fatto che non tutti i {\fontfamily{bch}\selectfont SubProblem} rimangono aperti e generano figli, ma coloro che lo fanno possono avere un branching factor molto elevato.\newline
 Ovviamente tutto questo non ci sorprende più di tanto poichè rispecchia quella che è una procedura di risoluzione esponenziale per un problema NP-hard come il TSP.
-\newpage
+
+
 \section{Esempio}
 Risolveremo in quest'ultimo paragrafo della tesina un esercizio sul TSP simmetrico preso da una vecchia prova d'esame del corso di Ottimizzazione Combinatoria datata 10/06/2015.
 \newline
@@ -376,7 +402,7 @@ L'istanza di grafo $G(V,E)$ è la seguente:
     c_{ij}:
     \begin{blockarray}{cccccc}
         & 1 & 2 & 3 & 4 & 5 \\
-    \begin{block}{c(ccccc)}
+        \begin{block}{c(ccccc)}
         1 & - & & & &  \\
         2 & 5 & - & & &  \\
         3 & 2 & 6 & - & &  \\
