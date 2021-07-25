@@ -1,11 +1,9 @@
 % 
-% Modelo de artigo científico para a revista Mecatrone v1.1
+% Branch & Bound per TSP simmetrico
+% AA 2020/21; Esame di Ottimizzazione Combinatoria
+% Lorenzo Sciandra e Stefano Vittorio Porta
 %
-% PET - Automação e Sistemas da Escola Politécnica da Universidade de São Paulo
-%
-% e-mail do grupo: petmecatronica@gmail.com
-% e-mail da revista: revistamecatrone@gmail.com
-%
+% I commenti sono in parte in Portoghese essendo stato utilizzato un template pre-costruito.
 
 
 \documentclass[
@@ -128,7 +126,7 @@
 % --- 
 \makepagestyle{meuestilo}
   \makeoddhead{meuestilo} %%pagina ímpar ou com oneside
-     {UniTo}
+     {UniTO}
      {2020-2021}
      {pag. \thepage}
 % ---
@@ -166,7 +164,7 @@
 % Resumo em português
 % -----------------------------------------------------------
 \begin{changemargin}{1cm}{1cm} 
- \textbf{Abstract} – In questa tesina sarà analizzato e risolto il problema del TSP simmetrico con un Branch \& Bound che fa uso degli 1-tree. A seguito della formulazione matematica del TSP si farà vedere come un rilassamento lagrangiano su un insieme di vincoli ci conduca ad un problema molto più semplice da risolvere, polinomiale a tutti gli effetti. Dopo aver mostrato una procedura risolutiva del calcolo dell'1-tree ed uno schema di Branch del problema originario seguirà, a fine della trattazione teorica, un'analisi dell'implementazione effettuata in Java ed un esempio esplicativo.
+ \textbf{Abstract} – In questa tesina sarà analizzato e risolto il problema del TSP simmetrico con un Branch \& Bound che fa uso degli 1-tree. A seguito della formulazione matematica del TSP sarà mostrato come un rilassamento lagrangiano su un insieme di vincoli ci conduca ad un problema molto più semplice da risolvere, polinomiale a tutti gli effetti. Dopo aver mostrato una procedura risolutiva del calcolo dell'1-tree ed uno schema di Branch del problema originario seguirà, a fine della trattazione teorica, un'analisi dell'implementazione effettuata in Java ed un esempio esplicativo.
 
  \vspace{\onelineskip}
  
@@ -182,14 +180,14 @@
 
 
 \section{Introduzione}
-Il problema del commesso viaggiatore, spesso indicato come \textbf{Travelling Salesman Problem} (TSP), è uno dei casi di studio classici dell'informatica teorica e della teoria della complessità computazionale. Il nome nasce dalla sua più tipica rappresentazione: dato un insieme di città, e note le distanze tra ciascuna coppia di esse, trovare il tragitto di minima percorrenza che un commesso viaggiatore deve seguire per visitare tutte le città una ed una sola volta e ritornare alla città di partenza. Al problema TSP è associabile un grafo non orientato $G=(V,E)$ con costi $c_{ij}$ associati agli archi, da cui si richiede di determinare un insieme di archi $C^* \subset E$ con costo minimo possibile. Tale insieme $C^*$ deve formare un \textit{circuito hamiltoniano}, cioè un ciclo che passi una ed una sola volta per ogni nodo del grafo. Il problema che analizzeremo è la versione simmetrica del TSP ossia $c_{ij} = c_{ji} \:\: \forall i,j \in V$, e quindi ogni arco è percorribile in entrambe le direzioni spendendo lo stesso costo.
+Il problema del commesso viaggiatore, spesso indicato come \textbf{Travelling Salesman Problem} (\textbf{TSP}), è uno dei casi di studio classici dell'informatica teorica e della teoria della complessità computazionale. Il nome nasce dalla sua più tipica rappresentazione: "\textit{Dato un insieme di città, e note le distanze tra ciascuna coppia di esse, trovare il tragitto di minima percorrenza che un commesso viaggiatore deve seguire per visitare tutte le città una ed una sola volta e ritornare alla città di partenza}". Al problema TSP è associabile un grafo non orientato $G=(V,E)$ con costi $c_{ij}$ associati agli archi, da cui si richiede di determinare un insieme di archi $C^* \subset E$ con costo minimo possibile. Tale insieme $C^*$ deve formare un \textbf{circuito hamiltoniano}, cioè un ciclo che passa una ed una sola volta per ogni nodo del grafo. Il problema che analizzeremo è la versione simmetrica del TSP ossia $c_{ij} = c_{ji} \:\: \forall i,j \in V$. Ogni arco è quindi percorribile in entrambe le direzioni spendendo lo stesso costo.
 \newline
 Il TSP è un problema NP-hard, nella precisione NP-completo e quindi algoritmi che lo risolvono all'ottimo richiedono una complessità in tempo più che polinomiale nell'istanza trattata ($P \neq NP)$.
 \newline
-Analizzeremo in questa tesina un approccio risolutivo basato sul \textbf{Branch \& Bound}, che garantisce di trovare l'ottimo del problema in un tempo che può essere esponenziale. L'idea alla base di questa tecnica algoritmica è quella di partizionare con la fase di \textbf{Branching} lo spazio delle soluzioni in più sottospazi, non per forza disgiunti la cui unione restituisca però tassativamente la regione iniziale. Avendo a che fare con spazi ridotti questi risulteranno di più facile analisi attraverso l'applicazione della fase di \textbf{Bounding}, in cui saranno valutate le soluzioni raggiungibili da una ipotetica ricerca nello spazio degli stati, permettendo di potare interi sottoalberi qualora la migliore soluzione garantita fosse peggiore di quella già ottenuta o non ammissibile.
+Analizzeremo in questa tesina un approccio risolutivo basato sul \textbf{Branch \& Bound}, che garantisce di trovare l'ottimo del problema in un tempo che può essere esponenziale. L'idea alla base di questa tecnica algoritmica è quella di partizionare con la fase di \textbf{Branching} lo spazio delle soluzioni in più sottospazi (non per forza disgiunti) la cui unione restituisca però tassativamente la regione iniziale. Avendo a che fare con spazi ridotti questi risulteranno di più facile analisi attraverso l'applicazione della fase di \textbf{Bounding}, in cui saranno valutate le soluzioni raggiungibili da una ipotetica ricerca nello spazio degli stati, permettendo di potare interi sottoalberi in caso di inammisbilità o qualora la migliore soluzione garantita fosse peggiore di quella già ottenuta.
 
 \section{Formulazione Matematica}
-Un circuito hamiltoniano è tale che su ogni nodo incidano esattamente due archi ed inoltre togliendo un nodo $n$ qualsiasi e i suoi due archi incidenti si ottiene un albero sui rimanenti nodi $|V| - 2$. Una possibile formalizzazione matematica del tsp che tiene conto di questo risulta quindi la seguente:
+Un circuito è detto hamiltoniano se su ogni nodo incidono esattamente due archi e, rimuovendo un nodo $n$ qualsiasi e i suoi due archi incidenti, si ottiene un albero sui rimanenti $|V| - 1$ nodi. Una possibile formalizzazione matematica del tsp che tiene conto di questo risulta quindi la seguente:
 \begin{equation*}
     \begin{split}
         \min z = & \sum_{(i,j) \in E} c_{ij} \cdot x_{ij}\\
@@ -199,19 +197,19 @@ Un circuito hamiltoniano è tale che su ogni nodo incidano esattamente due archi
         (4) \:\:\:\:\:\: & x_{ij} \in \{0,1\} \:\:\:\:\:\: \forall (i,j) \in E\\
     \end{split}
 \end{equation*}
-Il vincolo (1) impone che su ogni nodo $i \in V$ incidano esattamente due nodi, mentre (2) e (3) garantiscono che una volta scelto un nodo $n$, $V \setminus \{n\}$ risulti un albero e quindi abbia $|V|-2$ archi e sia privo di circuiti nell'albero. 
+Il vincolo (1) impone che su ogni nodo $i \in V$ incidano esattamente due archi, mentre (2) e (3) garantiscono che una volta scelto un nodo $n$, $V \setminus \{n\}$ risulti un albero e quindi abbia $|V|-2$ archi e sia privo di circuiti nell'albero. 
 \newline
-Dato un sottoinsieme di nodi $U \subseteq V$ definiamo $E(U)$ come l'insiem di archi $\{ (i,j) \:|\: i,j \in U \}$.  Osservando che ogni circuito sui nodi in $U$ deve avere $|U|$ archi in $E(U)$, per eliminare i circuiti abbiamo inserito il vincolo (3). Consideriamo $|U| \geq 3$, poichè se fosse per esempio uguale a 2 allora $E(U)$ conterrebbe solamente l'arco tra i due nodi e non ci sarebbe alcun circuito. Il vincolo (4) modella invece il dominio delle variabili decisionali che assumono valore 1 se il corrispondente arco viene inserito nel circuito hamiltoniano e 0 altrimenti.
+Dato un sottoinsieme di nodi $U \subseteq V$ definiamo $E(U)$ come l'insieme di archi $\{ (i,j) \:|\: i,j \in U \}$.  Osservando che ogni circuito sui nodi in $U$ deve avere $|U|$ archi in $E(U)$, per eliminare i circuiti abbiamo inserito il vincolo (3). Consideriamo $|U| \geq 3$, poichè se fosse per esempio uguale a 2 allora $E(U)$ conterrebbe solamente l'arco tra i due nodi e non ci sarebbe alcun circuito. Il vincolo (4) modella invece il dominio delle variabili decisionali che assumono valore 1 se il corrispondente arco viene inserito nel circuito hamiltoniano e 0 altrimenti.
 \newline
-Una volta che si ha a che fare con la formulazione matematica del TSP un possibile modo per produrre un rilassamento e quindi un \textbf{Lower Bound} al problema potrebbe essere quello di applicare il rilassamento continuo al vincolo d'interezza delle variabili (4).
+Una volta che si ha a che fare con la formulazione matematica del TSP una possibile via per produrre un rilassamento e quindi un \textbf{Lower Bound} al problema potrebbe essere quello di applicare il rilassamento continuo al vincolo d'interezza delle variabili (4).
 \newline
-L'approccio che abbiamo noi adottato prevede invece un rilassamento Lagrangiano sul vincolo (1) che ci conduce al problema di trovare il minimo 1-tree, una volta impostati i moltiplicatori lagrangiani $\lambda_i$ a 0, ossia eliminando il vincolo (1) per tutti i nodi tranne che per il nodo selezionato $n$.
+L'approccio che abbiamo noi adottato prevede invece un rilassamento Lagrangiano sul vincolo (1) che ci conduce al problema di trovare il minimo 1-Tree, una volta impostati i moltiplicatori lagrangiani $\lambda_i$ a 0, ossia eliminando il vincolo (1) per tutti i nodi tranne che per il nodo selezionato $n$.
 
 \section{Rilassamento Lagrangiano}
 Una volta introdotti dei moltiplicatori lagrangiani $\lambda_i$ per ogni nodo e portato in funzione obiettivo il vincolo otteniamo:
 \begin{equation*}
     \begin{split}
-         \min z = & \sum_{(i,j) \in E} c_{ij} \cdot x_{ij} + \sum_{k\in V} \lambda_k (2 - \sum_{j\in V, k\neq j} x_{kj})\\
+         \min z = & \sum_{(i,j) \in E} c_{ij} \cdot x_{ij} + \sum_{k\in V} \lambda_k \:(2 \:\:- \sum_{j\in V, k\neq j} x_{kj})\\
         (5)\:\:\:\:\:\: & \sum_{j \in V, j \neq n} x_{nj} = 2 \\
         (2) \:\:\:\:\:\: & \sum_{(i,j)\in E, i, j \neq n} x_{ij} = |V|-2 \\
         (3) \:\:\:\:\:\: & \sum_{(i,j) \in E(U)} x_{ij} \leq |U| - 1 \:\:\:\:\:\: \forall\: U \subseteq V\setminus\{n\} : |U| \geq 3 \\
@@ -244,7 +242,7 @@ Dato un grafo $G=(V,E)$ non orientato ed un suo nodo $n$ chiamiamo \textbf{1-tre
 Da questa definizione segue che $|E_H| = |V|$.
 \newline
 L'aspetto importante degli 1-tree è che ogni circuito hamiltoniano risulta un 1-tree, non è invece vero il viceversa. Se indichiamo con $S'$ l'insieme di tutti gli 1-tree calcolabili dato un grafo $G$ e con $S$ la regione ammissibile del TSP, abbiamo che $S \subset S'$.
-In altre parole il problema:
+In altre parole il problema
 \begin{equation*}
     \min_{H\in S'} \sum_{(i,j) \in E_H} c_{ij}
 \end{equation*}
@@ -285,7 +283,7 @@ Per quanto riguarda il calcolo e l'aggiornamento dell'\textbf{upper bound}, rico
 \section{Schema di Branch}
 Ci occuperemo ora di mostrare come sarà partizionata la regione ammissibile $S$ in più sottoinsiemi. Se non siamo nel caso fortunato in cui la soluzione del rilassamento è un circuito hamiltoniano, tale soluzione sarà allora un 1-tree che contiene esattamente un sottocircuito. Dobbiamo introdurre una regola di suddivisione il cui scopo è impedire il formarsi nei nodi figli di tale sottocircuito. Indichiamo con: $\{(i_1, j_1), (i_2,j_2),...,(i_r,j_r)\}$ gli archi che compongo tale sottocircuito. Il primo nodo figlio verrà generato imponendo che l'arco $(i_1,j_1)$ non faccia parte della soluzione, ossia impostando $x_{i_{1}j_{1}} = 0$. Il secondo nodo figlio sarà ottenuto imponendo che sia presente l'arco $(i_1,j_1)$, ma sia assente l'arco $(i_2,j_2)$, ovvero impostando $x_{i_{1}j_{1}} = 1$ e $x_{i_{2}j_{2}} = 0$. Il procedimento continua in questo modo fino all' r-esimo figlio che avrà tutti i primi $r-1$ archi del sottocircuito e non conterrà l'ultimo, quindi $\forall k = 1,2,...,r-1 \:\:x_{i_{k}j_{k}} = 1$ e $x_{i_{r}j_{r}} = 0$.
 \newline
-Ad ogni nodo saranno quindi associati due insiemi: 
+Ad ogni nodo dell'albero di branch saranno quindi associati due insiemi: 
 \begin{enumerate}
     \item $E_0$ contente tutti gli archi che non devono essere considerati;
     \item $E_1$ contenente tutti gli archi che devono essere in soluzione.
@@ -323,10 +321,10 @@ Rispetto alla scelta di usare delle matrici di incidenza, risulta svantaggiato i
 Tra le procedure più spesso eseguite troviamo sicuramente il calcolo del \textbf{Minimum Spanning Tree}, che viene ripetuto per ogni nodo dell'albero di Branch che andiamo a generare. Per tale calcolo abbiamo implementato l'algoritmo greedy proposto da Kruskal che presenta complessità ottima $O(m \cdot log\:n)$. Tale costo risiede principalmente nell'ordinamento decrescente iniziale degli archi, e nell'uso degli Mfset per controllare che un i-esimo arco possa essere incluso in soluzione con la certezza che non formi un ciclo. Ricordiamo che il Merge find set rappresenta una partizione di un insieme finito in sottoinsiemi disgiunti dette componenti o parti. Le operazioni ammesse permettono di controllare a quale componente appartiene un certo elemento e di unire due componenti diverse. Entrambe le operazioni presentano complessità $O(log\: n)$, dove $n$ rappresenta la cardinalità dell'insieme analizzato.
 \newline
 \newline
-Per quanto riguarda l'individuazione del sottociclo all'interno di un 1-tree che non è un circuito hamiltoniano abbiamo usato una \textbf{Depht First search} con complessità $O(n+m)$. L'idea è usare un vettore di padri per evitare di visitare più volte i nodi del grafo e per tener traccia del padre di ogni nodo. Conclusa l'esplorazione in profondità del grafo, semplicemente partendo dal nodo candidato $n$ e procedendo con i vettori dei padri a ritroso, si individua il ciclo che ci servirà per il fare il Branch di un problema $P_i$.
+Per quanto riguarda l'individuazione del sottocircuito all'interno di un 1-tree che non è un circuito hamiltoniano abbiamo usato una \textbf{Depht First search} con complessità $O(n+m)$. L'idea è usare un vettore di padri per evitare di visitare più volte i nodi del grafo e per tener traccia del padre di ogni nodo. Conclusa l'esplorazione in profondità del grafo, semplicemente partendo dal nodo candidato $n$ e procedendo con i vettori dei padri a ritroso, si individua il ciclo che ci servirà per il fare il Branch di un problema $P_i$.
 \newline
 \newline
-La procedura centrale per la risoluzione del TSP è firmata  {\fontfamily{bch}\selectfont solveProblem()} e restituisce un'istanza della classe {\fontfamily{bch}\selectfont TSPResult}, contenente il ciclo hamiltoniano con costo minore e una serie di statistiche riguardo ai nodi analizzati nell'albero di Branch. In caso in cui non vi fosse un ciclo hamiltoniano nel grafo di partenza viene restituito il grafo originale. Questo metodo richiama gli algoritmi sopra descritti e molte altre procedure di supporto al fine di gestire una {\fontfamily{bch}\selectfont PriorityQueue} di {\fontfamily{bch}\selectfont SubProblem} e terminando l'esecuzione non appena quest'ultima viene completamente svuotata in seguito alla chiusura di tutti i nodi per una delle ragioni precedentemente indicate. \'E qui che risiede tutta la complessità della risoluzione del TSP simmetrico, questo metodo infatti richiama sottoprocedure polinomiali in tempo, ma il numero di {\fontfamily{bch}\selectfont SubProblem} che deve gestire può essere esponenziale.
+La procedura centrale per la risoluzione del TSP è firmata  {\fontfamily{bch}\selectfont solveProblem()} e restituisce un'istanza della classe {\fontfamily{bch}\selectfont TSPResult}, contenente il circuito hamiltoniano con costo minore e una serie di statistiche riguardo ai nodi analizzati nell'albero di Branch. In caso in cui non vi fosse un circuito hamiltoniano nel grafo di partenza viene restituito il grafo originale. Questo metodo richiama gli algoritmi sopra descritti e molte altre procedure di supporto al fine di gestire una {\fontfamily{bch}\selectfont PriorityQueue} di {\fontfamily{bch}\selectfont SubProblem} e terminando l'esecuzione non appena quest'ultima viene completamente svuotata in seguito alla chiusura di tutti i nodi per una delle ragioni precedentemente indicate. \'E qui che risiede tutta la complessità della risoluzione del TSP simmetrico, questo metodo infatti richiama sottoprocedure polinomiali in tempo, ma il numero di {\fontfamily{bch}\selectfont SubProblem} che deve gestire può essere esponenziale.
 \newline
 La gestione dell'insieme dei SubProblem ancora aperti è stata realizzata con una coda di priorità \textbf{min-heap}, ossia con una struttura dati che presenta complessità $O(1)$ per leggere l'elemento con lower bound minore e $O(log\:n)$ per estrarre ed aggiungere un elemento.
 \newline
@@ -337,45 +335,33 @@ Mostriamo ora i dati che abbiamo raccolto. L'esecuzione è avvenuta su un calcol
 \begin{center}
  \begin{tabular}{||c c c c c||} 
  \hline
- Thread & Nodi & Archi & Nodi generati & Tempo d'esecuzione\\ [0.5ex] 
+ Thread & $V\in G$ & $E\in G$ & Nodi albero di branch & Tempo d'esecuzione\\ [0.5ex] 
  \hline\hline
- 1 & 5 & 10 & 5 & 93ms\\ 
+ 1 & 5 & 10 & & 12ms\\ 
  \hline
- 1 & 10 & 45 & 559 & 149ms\\
- %\hline
- %1 & 13 & 78 & 7293 & 250ms\\
+ 2 & 5 & 10 & & 12ms\\
  \hline
- 1 & 15 & 105 & ... & ...\\
+ 4 & 5 & 10 &  & 10ms\\ 
  \hline
- 1 & 17 & 136 & ... & ...\\
- \hline
- 1 & 18 & 153 & ... & ...\\
+ 8 & 5 & 10 &  & 10ms\\ 
  \hline
  \hline
- 4 & 5 & 10 & 5 & 97ms\\ 
+ 1 & 10 & 45 &  & 57ms\\
  \hline
- 4 & 10 & 45 & 559 & 133ms\\
+ 2 & 10 & 45 &  & 51ms\\
  \hline
- %4 & 13 & 78 & 7293 & 234ms\\
- %\hline
- 4 & 15 & 105 & ... & ...\\
+ 4 & 10 & 45 &  & 26ms\\
  \hline
- 4 & 17 & 136 & ... & ...\\
- \hline
- 4 & 18 & 153 & ... & ...\\
+ 8 & 10 & 45 &  & 19ms\\
  \hline
  \hline
- 8 & 5 & 10 & 5 & 101ms\\ 
+ 1 & 15 & 105 &  & \\
  \hline
- 8 & 10 & 45 & 559 & 155ms\\
- %\hline
- %8 & 13 & 78 & 7293 & 223ms\\
+ 2 & 15 & 105 &  & \\
  \hline
- 8 & 15 & 105 & ... & ...\\
+ 4 & 15 & 105 &  & \\
  \hline
- 8 & 17 & 136 & ... & ...\\
- \hline
- 8 & 18 & 153 & ... & ...\\
+ 8 & 15 & 105 &  & \\
  \hline
 \end{tabular}
 \end{center}
