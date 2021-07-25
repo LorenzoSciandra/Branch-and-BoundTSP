@@ -164,7 +164,7 @@
 % Resumo em português
 % -----------------------------------------------------------
 \begin{changemargin}{1cm}{1cm} 
- \textbf{Abstract} – In questa tesina sarà analizzato e risolto il problema del TSP simmetrico con un Branch \& Bound che fa uso degli 1-tree. A seguito della formulazione matematica del TSP sarà mostrato come un rilassamento lagrangiano su un insieme di vincoli ci conduca ad un problema molto più semplice da risolvere, polinomiale a tutti gli effetti. Dopo aver mostrato una procedura risolutiva del calcolo dell'1-tree ed uno schema di Branch del problema originario seguirà, a fine della trattazione teorica, un'analisi dell'implementazione effettuata in Java ed un esempio esplicativo.
+ \textbf{Abstract} – In questa tesina sarà analizzato e risolto il problema del TSP simmetrico con un Branch \& Bound che fa uso degli 1-tree. A seguito della formulazione matematica del TSP sarà mostrato come un rilassamento lagrangiano su un insieme di vincoli ci conduca ad un problema molto più semplice da risolvere, polinomiale a tutti gli effetti. Dopo aver mostrato una procedura risolutiva del calcolo dell'1-tree ed uno schema di Branch del problema originario seguirà, a fine della trattazione teorica, l'analisi dell'implementazione effettuata in Java ed un esempio esplicativo.
 
  \vspace{\onelineskip}
  
@@ -197,11 +197,11 @@ Un circuito è detto hamiltoniano se su ogni nodo incidono esattamente due archi
         (4) \:\:\:\:\:\: & x_{ij} \in \{0,1\} \:\:\:\:\:\: \forall (i,j) \in E\\
     \end{split}
 \end{equation*}
-Il vincolo (1) impone che su ogni nodo $i \in V$ incidano esattamente due archi, mentre (2) e (3) garantiscono che una volta scelto un nodo $n$, $V \setminus \{n\}$ risulti un albero e quindi abbia $|V|-2$ archi e sia privo di circuiti nell'albero. 
+Il vincolo (1) impone che su ogni nodo $i \in V$ incidano esattamente due archi, mentre (2) e (3) garantiscono che una volta scelto un nodo $n$, $V \setminus \{n\}$ risulti un albero e quindi abbia $|V|-2$ archi e sia privo di circuiti. 
 \newline
 Dato un sottoinsieme di nodi $U \subseteq V$ definiamo $E(U)$ come l'insieme di archi $\{ (i,j) \:|\: i,j \in U \}$.  Osservando che ogni circuito sui nodi in $U$ deve avere $|U|$ archi in $E(U)$, per eliminare i circuiti abbiamo inserito il vincolo (3). Consideriamo $|U| \geq 3$, poichè se fosse per esempio uguale a 2 allora $E(U)$ conterrebbe solamente l'arco tra i due nodi e non ci sarebbe alcun circuito. Il vincolo (4) modella invece il dominio delle variabili decisionali che assumono valore 1 se il corrispondente arco viene inserito nel circuito hamiltoniano e 0 altrimenti.
 \newline
-Una volta che si ha a che fare con la formulazione matematica del TSP una possibile via per produrre un rilassamento e quindi un \textbf{Lower Bound} al problema potrebbe essere quello di applicare il rilassamento continuo al vincolo d'interezza delle variabili (4).
+Una volta che si ha a che fare con la formulazione matematica del TSP un possibile rilassamento e quindi un \textbf{Lower Bound} al problema potrebbe essere quello di applicare il rilassamento continuo al vincolo d'interezza delle variabili (4).
 \newline
 L'approccio che abbiamo noi adottato prevede invece un rilassamento Lagrangiano sul vincolo (1) che ci conduce al problema di trovare il minimo 1-Tree, una volta impostati i moltiplicatori lagrangiani $\lambda_i$ a 0, ossia eliminando il vincolo (1) per tutti i nodi tranne che per il nodo selezionato $n$.
 
@@ -329,7 +329,7 @@ La procedura centrale per la risoluzione del TSP è firmata  {\fontfamily{bch}\s
 La gestione dell'insieme dei SubProblem ancora aperti è stata realizzata con una coda di priorità \textbf{min-heap}, ossia con una struttura dati che presenta complessità $O(1)$ per leggere l'elemento con lower bound minore e $O(log\:n)$ per estrarre ed aggiungere un elemento.
 \newline
 \newline
-Terminiamo questo paragrafo con l'analisi delle prestazioni dell'implementazione. Su grafi banali come quello che verrà mostrato nell'esempio conclusivo della tesina il codice termina in qualche decina di millisecondi generando una manciata di nodi nell'albero di branch.\newline
+Terminiamo questo paragrafo con l'analisi delle prestazioni dell'implementazione. Su grafi banali come quello che verrà mostrato nell'esempio conclusivo della tesina il codice termina in pochi millisecondi generando una manciata di nodi nell'albero di branch.\newline
 Come abbiamo potuto toccare con mano durante i nostri test, il tempo necessario per l'esecuzione dipende fortemente dal numero di archi che popolano il grafo. Esecuzioni su grafi sparsi di 100 nodi richiedono decine di secondi, mentre esecuzioni su grafi completi anche solo di 20 nodi richiedono potenzialmente diversi minuti. Per ottenere un'analisi significativa delle prestazioni, abbiamo creato una classe Java {\fontfamily{bch}\selectfont BasicCompleteGraphGenerator} che, come si evince dal nome stesso, ci permette di generare grafi completi una volta specificato il numero di nodi e il range entro il quale devono risiedere i costi degli archi. Ricordiamo che un grafo completo $G$ con $n$ nodi avrà $\frac{n\cdot (n-1)}{2}$ archi non orientati.\newline
 Per dare maggiore rilevanza ai test effettuati abbiamo anche dato la possibilità di parallelizzare i calcoli su più thread. Una volta infatti che si è fatto il branch di un nodo e si ha generato tutti i figli di uno stesso livello questi possono tranquillamente essere computati simultaneamente per poi decidere se vadano chiusi per un qualche motivo o espansi con una ulteriore operazione di branch.
 \newline
@@ -417,7 +417,7 @@ Come nodo candidato scegliamo arbitrariamente il nodo $1$ e calcoliamo l'1-tree 
     \qquad \qquad \qquad
     \includegraphics[scale=0.4]{files/alberoBranch1.png}
 \end{center}
-Ci troviamo con un primo 1-tree che non è un circuito hamiltoniano e sul quale dobbiamo fare Branch. Il sottocircuito che esso contiene è formato dai seguenti archi $\{(1,3),(3,5),(5,4),(4,1)\}$. Genereremo 4 figli così caratterizzati:
+Ci troviamo con un primo 1-tree che non è un circuito hamiltoniano e sul quale dobbiamo fare branch. Il sottocircuito che esso contiene è formato dai seguenti archi $\{(1,3),(3,5),(5,4),(4,1)\}$. Genereremo 4 figli così caratterizzati:
 \begin{enumerate}
     \item [] \underline{Nodo 2}: $\:E_0 = \{(1,3)\}$ e $E_1 = \emptyset$;
     \item [] \underline{Nodo 3}: $\:E_0 = \{(3,5)\}$ e $E_1 = \{(1,3)\}$;
@@ -434,7 +434,7 @@ Calcolando per ognuno dei nuovi nodi il corrispondente 1-tree abbiamo rispettiva
     \qquad
     \includegraphics[scale=0.26]{files/quinto1Tree.png}
 \end{center}
-Il nodo 2 viene chiuso per ottimalità in quanto presenta un circuito hamiltoniano di costo 17, che diventa la nostra prima soluzione. Il nodo 3 viene chiuso per Bound in quanto presenta un lower bound pari a 19, maggiore della nostra soluzione intera. Discorso analogo viene fatto per il nodo 4 con lower bound 20. Il nodo 5 rimane invece aperto dato che presenta lower bound 16 sul quale faremo branch.
+Il nodo 2 viene chiuso per ottimalità in quanto presenta un circuito hamiltoniano di costo 17, che diventa la nostra prima soluzione. Il nodo 3 viene chiuso per Bound in quanto presenta un lower bound pari a 19, maggiore della nostra soluzione. Discorso analogo viene fatto per il nodo 4 con lower bound 20. Il nodo 5 rimane invece aperto dato che presenta lower bound 16 e sul quale faremo branch.
 \newline
 L'albero di Branch aggiornato con queste nuove considerazioni risulta essere:
 \begin{center}
