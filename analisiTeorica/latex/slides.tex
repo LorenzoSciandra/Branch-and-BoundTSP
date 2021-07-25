@@ -340,38 +340,55 @@ Come si può notare questa è identica al rilassamento lagrangiano precedentemen
 \begin{frame}{Analisi dell'implementazione - Prestazioni}
 Mostriamo ora i dati che abbiamo raccolto con un calcolatore con processore AMD Ryzen 7 4.6GHz e 32 GB di RAM DDR4:
     \begin{center}
-    \resizebox{7.5cm}{!}{
+    \resizebox{7cm}{!}{
  \begin{center}
  \begin{tabular}{||c c c c c||} 
  \hline
- Thread & $V\in G$ & $E\in G$ & Nodi albero di branch & Tempo d'esecuzione\\ [0.5ex] 
+ Thread & $V\in G$ & $E\in G$ & \# sottoproblemi & Tempo medio d'esecuzione\\ [0.5ex] 
  \hline\hline
- 1 & 5 & 10 & & 12ms\\ 
+ 1 & 5 & 10 & 9 & $<$1ms\\ 
  \hline
- 2 & 5 & 10 & & 12ms\\
+ 2 & 5 & 10 & 10 & $<$1ms\\
  \hline
- 4 & 5 & 10 &  & 10ms\\ 
+ 4 & 5 & 10 & 10  & $<$1ms\\ 
  \hline
- 8 & 5 & 10 &  & 10ms\\ 
- \hline
- \hline
- 1 & 10 & 45 &  & 57ms\\
- \hline
- 2 & 10 & 45 &  & 57ms\\
- \hline
- 4 & 10 & 45 &  & 27ms\\
- \hline
- 8 & 10 & 45 &  & 19ms\\
+ 8 & 5 & 10 & 10  & $<$1ms\\ 
  \hline
  \hline
- 1 & 15 & 105 &  & \\
+ 1 & 10 & 45 & 3043 & 72ms\\
  \hline
- 2 & 15 & 105 &  & \\
+ 2 & 10 & 45 & 3043 & 66ms\\
  \hline
- 4 & 15 & 105 &  & \\
+ 4 & 10 & 45 & 3044 & 28ms\\
  \hline
- 8 & 15 & 105 &  & \\
+ 8 & 10 & 45 & 3044 & 16ms\\
  \hline
+ \hline
+ 1 & 13 & 105 & 130192 & 4.2s\\
+ \hline
+ 2 & 13 & 105 & 130192 & 4.1s\\
+ \hline
+ 4 & 13 & 105 & 130186 & 1.8s\\
+ \hline
+ 8 & 13 & 105 & 130164 & 1s \\
+ \hline
+ \hline
+ 1 & 15 & 105 & 811302 & 33.3s\\
+ \hline
+ 2 & 15 & 105 & 811302 & 33.2s\\
+ \hline
+ 4 & 15 & 105 & 811306 & 18.6s\\
+ \hline
+ 8 & 15 & 105 & 811306 & 9.0s\\
+ \hline
+  \hline
+ 1 & 20 & 190 & $>$2.5M & ...\\
+ \hline
+ 2 & 20 & 190 & $>$2.5M & ...\\
+ \hline
+ 4 & 20 & 190 & $>$2.5M & ... \\
+ \hline
+ 8 & 20 & 190 & $>$2.5M & ... \\
  \hline
 \end{tabular}
 \end{center}
@@ -382,10 +399,15 @@ Mostriamo ora i dati che abbiamo raccolto con un calcolatore con processore AMD 
 \end{frame}
 
 \begin{frame}{Analisi dell'implementazione - Prestazioni}
-    I puntini nella tabella rappresentano esecuzioni che non sono terminate a causa della mancanza di RAM. Il {\fontfamily{bch}\selectfont Garbage Collector} di Java permette di eliminare tutte le classi non più utili, ma il numero di {\fontfamily{bch}\selectfont SubPorblem} che sono ancora attivi nella frontiera dell'albero di branch può essere esponenzialmente grande. Basti pensare al fatto che non tutti i {\fontfamily{bch}\selectfont SubProblem} rimangono aperti e generano figli, ma coloro che lo fanno possono avere un branching factor molto grande.
+    Sia il tempo che il numero di sottoproblemi generati sono stati calcolati facendo una media dei risultati ottenuti su 500 esecuzioni per ogni istanza di grafo completo e per ogni numero di thread. Il campione usato è stato ridotto a 30 solamente nell'ultima serie di test a causa del tempo esponenzialmente sempre maggiore.
+\end{frame}
+
+\begin{frame}{Analisi dell'implementazione - Prestazioni}
+    I puntini nella tabella rappresentano esecuzioni che non sono terminate a causa della mancanza di RAM per poter ospitare tutti i sottoproblemi ancora da valutare. Il {\fontfamily{bch}\selectfont Garbage Collector} di Java si occupa di eliminare tutte le istanze di classi non più referenziate, ma il numero di {\fontfamily{bch}\selectfont SubProblem} che sono ancora attivi nella frontiera dell'albero di branch può essere esponenzialmente grande. Basti pensare al fatto che non tutti i {\fontfamily{bch}\selectfont SubProblem} rimangono aperti e generano figli, ma coloro che lo fanno possono avere un branching factor molto elevato.
     
     
     Ovviamente tutto questo non ci sorprende più di tanto poichè rispecchia quella che è una procedura di risoluzione esponenziale per un problema NP-hard come il TSP.
 \end{frame}
+
 
 \end{document}

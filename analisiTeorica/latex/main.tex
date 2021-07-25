@@ -309,14 +309,13 @@ Nell'ultimo caso delineato qualora il nodo presentasse anche un costo migliore e
 \newline
 Se alcuni nodi risultano aperti la scelta del prossimo nodo su cui fare Branch ricade su quello che presenta un Lower Bound minore, ossia quello che ci permette, in caso di ottimalità, di chiudere prima eventuali nodi aperti e terminare l'esecuzione. Un tale approccio viene detto \textbf{Best First}.
 
-
 \section{Analisi dell'implementazione}
 L'intero codice implementativo può essere visionato direttamente presso la pagina \href{https://github.com/LorenzoSciandra/TesinaOttimizzazioneCombinatoria}{GitHub} della tesina. Seguirà in questo paragrafo un'analisi delle scelte rilevanti compiute e uno sguardo sull'esecuzione degli algoritmi discussi su istanze medio/grandi di grafi.
 \newline
 \newline
 Per quanto riguarda la struttura dati utilizzata abbiamo implementato il grafo e quindi anche l'1-tree che di volta in volta calcoliamo con delle \textbf{liste di adiacenze} realizzate con HashMap. Nello specifico il grafo è visto come un'insieme di nodi, che a loro volta contengono insiemi di archi. Entrambi questi insiemi sono stati realizzati con HashMap per rendere più efficiente il recupero dell'informazione. Questa scelta risulta la più conveniente dal punto di vista della complessità per i compiti che dobbiamo svolgere. Un'esplorazione completa del grafo, così come lo spazio necessario per la memorizzazione richiede complessità $O(n+m)$, mentre la scansione degli adiacenti di un nodo risulta di costo minimo $O(|A(u)|)$, dove $A(u) = \{v \:|\: (u,v) \in E\}$.
 \newline
-Rispetto alla scelta di usare delle matrici di incidenza, risulta svantaggiato il controllo dell'esistenza di un arco nel grafo che richiede tempo $O(1)$ con le matrici di adiacenza e $O(|A(u)|)$ con le liste di adiacenza. Dato che quest'operazione non viene da noi mai eseguita, mentre risultano centrali l'operazione di scansione degli adiacenti di un nodo e dell'intero grafo, le liste di adiacenza si dimostrano ottime. Questi compiti richiedono infatti rispettivamente complessità $O(n)$ e $O(n^2)$ con una matrice di adiacenza.
+Rispetto alla scelta di usare delle matrici di incidenza, risulta svantaggiato il controllo dell'esistenza di un arco nel grafo che richiede tempo $O(1)$ con le matrici di adiacenza e $O(|A(u)|)$ con le liste di adiacenza. Dato che quest'operazione non viene da noi mai eseguita, mentre risultano centrali l'operazione di scansione degli adiacenti di un nodo e dell'intero grafo, le liste di adiacenza si dimostrano ottime. Questi compiti richiedono infatti rispettivamente complessità $O(n)$ e $O(n^2)$ con una matrice di adiacenza. 
 \newline
 \newline
 Tra le procedure più spesso eseguite troviamo sicuramente il calcolo del \textbf{Minimum Spanning Tree}, che viene ripetuto per ogni nodo dell'albero di Branch che andiamo a generare. Per tale calcolo abbiamo implementato l'algoritmo greedy proposto da Kruskal che presenta complessità ottima $O(m \cdot log\:n)$. Tale costo risiede principalmente nell'ordinamento decrescente iniziale degli archi, e nell'uso di Merge Find Set per controllare che un i-esimo arco possa essere incluso in soluzione con la certezza che non formi un ciclo. Ricordiamo che il Merge find set rappresenta una partizione di un insieme finito in sottoinsiemi disgiunti dette componenti o parti. Le operazioni ammesse permettono di controllare a quale componente appartiene un certo elemento e di unire due componenti diverse. Entrambe le operazioni presentano complessità $O(log\: n)$, dove $n$ rappresenta la cardinalità dell'insieme analizzato.
@@ -340,60 +339,59 @@ Mostriamo ora i dati che abbiamo raccolto. L'esecuzione è avvenuta su un calcol
     \item 32GB di RAM DDR4 (3200MHz)
 \end{itemize}
 \begin{center}
-    \begin{tabular}{||c c c c c||}
-        \hline
-        Thread & $V\in G$ & $E\in G$ & \# sottoproblemi medio & Tempo d'esecuzione medio\\ [0.5ex]
-        \hline\hline
-        1      & 5        & 10       & 9                      & <1ms (500 campioni)      \\
-        \hline
-        2      & 5        & 10       & 10                     & <1ms (500 campioni)      \\
-        \hline
-        4      & 5        & 10       & 10                     & <1ms (500 campioni)      \\
-        \hline
-        8      & 5        & 10       & 10                     & <1ms (500 campioni)      \\
-        \hline
-        \hline
-        1      & 10       & 45       & 3043                   & 72ms (500 campioni)      \\
-        \hline
-        2      & 10       & 45       & 3043                   & 66ms (500 campioni)      \\
-        \hline
-        4      & 10       & 45       & 3044                   & 28ms (500 campioni)      \\
-        \hline
-        8      & 10       & 45       & 3044                   & 16ms (500 campioni)      \\
-        \hline
-        \hline
-        1      & 13       & 105      & 130192                 & 4202ms (500 campioni)    \\
-        \hline
-        2      & 13       & 105      & 130192                 & 4176ms (500 campioni)    \\
-        \hline
-        4      & 13       & 105      & 130186                 & 1888ms (500 campioni)    \\
-        \hline
-        8      & 13       & 105      & 130164                 & 1004ms (500 campioni)    \\
-        \hline
-        \hline
-        1      & 15       & 105      & 811302                 & 33359ms (30 campioni)    \\
-        \hline
-        2      & 15       & 105      & 811302                 & 33240ms (30 campioni)    \\
-        \hline
-        4      & 15       & 105      & 811306                 & 18562ms (30 campioni)    \\
-        \hline
-        8      & 15       & 105      & 811306                 & 9031ms (30 campioni)     \\
-        \hline
-        \hline
-        1      & 20       & 190      & >2.5M                  & ...                      \\
-        \hline
-        2      & 20       & 190      & >2.5M                  & ...                      \\
-        \hline
-        4      & 20       & 190      & >2.5M                  & ...                      \\
-        \hline
-        8      & 20       & 190      & >2.5M                  & ...                      \\
-        \hline
-    \end{tabular}
+ \begin{tabular}{||c c c c c||} 
+ \hline
+ Thread & $V\in G$ & $E\in G$ & \# sottoproblemi & Tempo medio d'esecuzione\\ [0.5ex] 
+ \hline\hline
+ 1 & 5 & 10 & 9 & <1ms\\ 
+ \hline
+ 2 & 5 & 10 & 10 & <1ms\\
+ \hline
+ 4 & 5 & 10 & 10  & <1ms\\ 
+ \hline
+ 8 & 5 & 10 & 10  & <1ms\\ 
+ \hline
+ \hline
+ 1 & 10 & 45 & 3043 & 72ms\\
+ \hline
+ 2 & 10 & 45 & 3043 & 66ms\\
+ \hline
+ 4 & 10 & 45 & 3044 & 28ms\\
+ \hline
+ 8 & 10 & 45 & 3044 & 16ms\\
+ \hline
+ \hline
+ 1 & 13 & 105 & 130192 & 4.2s\\
+ \hline
+ 2 & 13 & 105 & 130192 & 4.1s\\
+ \hline
+ 4 & 13 & 105 & 130186 & 1.8s\\
+ \hline
+ 8 & 13 & 105 & 130164 & 1s \\
+ \hline
+ \hline
+ 1 & 15 & 105 & 811302 & 33.3s\\
+ \hline
+ 2 & 15 & 105 & 811302 & 33.2s\\
+ \hline
+ 4 & 15 & 105 & 811306 & 18.6s\\
+ \hline
+ 8 & 15 & 105 & 811306 & 9.0s\\
+ \hline
+  \hline
+ 1 & 20 & 190 & >2.5M & ...\\
+ \hline
+ 2 & 20 & 190 & >2.5M & ...\\
+ \hline
+ 4 & 20 & 190 & >2.5M & ... \\
+ \hline
+ 8 & 20 & 190 & >2.5M & ... \\
+ \hline
+\end{tabular}
 \end{center}
+Sia il tempo che il numero di sottoproblemi generati sono stati calcolati facendo una media dei risultati ottenuti su 500 esecuzioni per ogni istanza di grafo completo e per ogni numero di thread. Il campione usato è stato ridotto a 30 solamente nell'ultima serie di test a causa del tempo richiesto sempre maggiore.
 I puntini nella tabella rappresentano esecuzioni che non sono terminate a causa della mancanza di RAM per poter ospitare tutti i sottoproblemi ancora da valutare. Il {\fontfamily{bch}\selectfont Garbage Collector} di Java si occupa di eliminare tutte le istanze di classi non più referenziate, ma il numero di {\fontfamily{bch}\selectfont SubProblem} che sono ancora attivi nella frontiera dell'albero di branch può essere esponenzialmente grande. Basti pensare al fatto che non tutti i {\fontfamily{bch}\selectfont SubProblem} rimangono aperti e generano figli, ma coloro che lo fanno possono avere un branching factor molto elevato.\newline
 Ovviamente tutto questo non ci sorprende più di tanto poichè rispecchia quella che è una procedura di risoluzione esponenziale per un problema NP-hard come il TSP.
-
-
 \section{Esempio}
 Risolveremo in quest'ultimo paragrafo della tesina un esercizio sul TSP simmetrico preso da una vecchia prova d'esame del corso di Ottimizzazione Combinatoria datata 10/06/2015.
 \newline
@@ -402,7 +400,7 @@ L'istanza di grafo $G(V,E)$ è la seguente:
     c_{ij}:
     \begin{blockarray}{cccccc}
         & 1 & 2 & 3 & 4 & 5 \\
-        \begin{block}{c(ccccc)}
+    \begin{block}{c(ccccc)}
         1 & - & & & &  \\
         2 & 5 & - & & &  \\
         3 & 2 & 6 & - & &  \\
