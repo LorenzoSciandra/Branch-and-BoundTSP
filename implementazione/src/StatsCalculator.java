@@ -1,7 +1,5 @@
 import graph.exceptions.GraphNodeMissingException;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -9,60 +7,116 @@ import tsp.BranchAndBound;
 import tsp.TSPResult;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class StatsCalculator {
     final static Logger logger = LogManager.getLogger(StatsCalculator.class);
 
     public static void main(String[] args) throws GraphNodeMissingException {
-        // todo improve parameter insertion
-        // todo accept as a parameter the number of threads (as a list optionally: eg. 1,2,4,8)
-        // todo accept a range or a list of numbers for the graph node count
         // Unfortunately there are a lot of values that have to be known in order to test...
+        // All the parameters that are mandatory don't have a default value set here. They're all nulls just to make
+        // the compiler happy.
         // Number of threads to run each test with
-        List<Integer> threadCountList = List.of(1, 2, 4, 8);
+        List<Integer> threadCounts = null;
         // Range for node # for tests. Each test is run with all the thread counts.
-        int fromNodeCount = Integer.parseInt(args[0]);
-        int toNodeCount = Integer.parseInt(args[1]);
+        IntStream nodesCount = null;
         // Range (inclusive) of values that can be generated for the edges of the Graphs
-        int edgeMinValue = Integer.parseInt(args[2]);
-        int edgeMaxValue = Integer.parseInt(args[3]);
+        Integer edgeMinValue = null;
+        Integer edgeMaxValue = null;
         // Maximum execution time for a single test, after which it is terminated.
         // Statistics aren't updated with a failed test.
-        int maxExecutionTime = Integer.parseInt(args[4]);
+        Integer maxExecutionTime = null;
         // How many times a test (nodeNumber, threadCount) should be ran (with a different graph).
         // An average result is calculated.
-        int repeatsForNodeCount = Integer.parseInt(args[5]);
-
-        Random random;
-        long seed;
-        if (args.length < 7) {
-            seed = System.currentTimeMillis();
-            logger.info("Using seed {} as it hasn't been specified.", seed);
-        } else {
-            seed = Long.parseLong(args[6]);
-            logger.info("Using seed {}", seed);
-        }
-        random = new Random(seed);
-
+        Integer repeatsForNodeCount = null;
+        long seed = System.currentTimeMillis();
         int skipFirstNGraphs = 0;
-        if (args.length >= 8) {
-            skipFirstNGraphs = Integer.parseInt(args[7]);
+
+        try {
+            Options options = generateCLIOptions();
+            CommandLineParser parser = new DefaultParser();
+
+            // Optional parameters: s S h.
+
+            CommandLine cl = parser.parse(generateHelpOption(), args, true);
+
+            // https://stackoverflow.com/questions/36720946/apache-cli-required-options-contradicts-with-help-option/36722157
+            if (cl.hasOption('h')) {
+                new HelpFormatter().printHelp("tester", options, true);
+                System.exit(0);
+            }
+
+            cl = parser.parse(options, args);
+
+            if (cl.hasOption('s')) {
+                seed = (long) cl.getOptionObject('s');
+                logger.info("Using seed {}", seed);
+            } else {
+                logger.info("Generated seed {} as it hasn't been specified.", seed);
+            }
+
+            if (cl.hasOption('S')) {
+                skipFirstNGraphs = (int) cl.getOptionObject('S');
+            }
+
+            // nr/nl er t T r
+            if (cl.hasOption("nr")) {
+                String[] range = cl.getOptionValues("nr");
+                int min = Integer.parseInt(range[0]);
+                int max = Integer.parseInt(range[1]);
+
+                if (min > max) {
+                    int t = min;
+                    min = max;
+                    max = t;
+                }
+
+                nodesCount = IntStream.rangeClosed(min, max);
+            } else {
+                // cl.hasOption("nl"); => true
+                String[] list = cl.getOptionValues("nl");
+                nodesCount = Arrays.stream(list).mapToInt(Integer::parseInt);
+            }
+
+            threadCounts = Arrays.stream(cl.getOptionValues('T'))
+                                 .map(Integer::parseInt)
+                                 .collect(Collectors.toList());
+
+            edgeMinValue = Integer.parseInt(cl.getOptionValues("er")[0]);
+            edgeMaxValue = Integer.parseInt(cl.getOptionValues("er")[1]);
+
+            if (edgeMinValue > edgeMaxValue) {
+                int t = edgeMinValue;
+                edgeMinValue = edgeMaxValue;
+                edgeMaxValue = t;
+            }
+
+            maxExecutionTime = Integer.parseInt(cl.getOptionValue("t"));
+
+            repeatsForNodeCount = Integer.parseInt(cl.getOptionValue("r"));
+
+        } catch (ParseException | NumberFormatException e) {
+            e.printStackTrace();
+            System.exit(1);
         }
+
+        Random random = new Random(seed);
 
         // We need an executor service to run a single test. Only one test at a time is run, in order to dedicate all
         // resources to it (also given how much memory a single TSP computation takes, it is for the best)
         ExecutorService service = Executors.newSingleThreadExecutor();
         // A list of the stats generated during testing.
-        ArrayList<BnBStats[]> stats = new ArrayList<>();
+        ArrayList<ArrayList<BnBStats>> stats = new ArrayList<>();
 
         // Iterate over each node count
-        for (int nodeCount = fromNodeCount; nodeCount <= toNodeCount; nodeCount++) {
+        Iterator<Integer> nodesIterator = nodesCount.boxed().iterator();
+        while (nodesIterator.hasNext()) {
+            int nodeCount = nodesIterator.next();
             logger.info("Testing with {} nodes", nodeCount);
 
             ArrayList<BranchAndBound> graphs = new ArrayList<>();
@@ -88,15 +142,12 @@ public class StatsCalculator {
             }
 
             // Prepare the array of stats. An element for each thread count.
-            BnBStats[] threadResults = new BnBStats[threadCountList.size()];
+            ArrayList<BnBStats> threadResults = new ArrayList<>(threadCounts.size());
 
-
-            for (int j = 0; j < threadCountList.size(); j++) {
-                Integer threadCount = threadCountList.get(j);
-
-                threadResults[j] = new BnBStats(nodeCount,
-                                                (nodeCount - 1L) * (nodeCount) / 2L,
-                                                threadCount);
+            for (Integer threadCount : threadCounts) {
+                BnBStats currentTestResults = new BnBStats(nodeCount,
+                                                           (nodeCount - 1L) * (nodeCount) / 2L,
+                                                           threadCount);
 
                 for (int i = 0; i < graphs.size(); i++) {
                     BranchAndBound branchAndBound = graphs.get(i);
@@ -117,8 +168,8 @@ public class StatsCalculator {
                                     i + 1, repeatsForNodeCount,
                                     time.orElseThrow());
 
-                        threadResults[j].addTime(time.orElseThrow());
-                        threadResults[j].addGeneratedNodes(result.getTotalNodesCount());
+                        currentTestResults.addTime(time.orElseThrow());
+                        currentTestResults.addGeneratedNodes(result.getTotalNodesCount());
 
                     } catch (InterruptedException | ExecutionException e) {
                         // Unusual error!
@@ -132,6 +183,8 @@ public class StatsCalculator {
                         System.gc();
                     }
                 }
+
+                threadResults.add(currentTestResults);
             }
 
             stats.add(threadResults);
@@ -150,9 +203,9 @@ public class StatsCalculator {
             e.printStackTrace();
         }
 
-        for (BnBStats[] statBlock : stats) {
+        for (ArrayList<BnBStats> statBlock : stats) {
             logger.info("=================================================================");
-            logger.info("Results for {} Nodes ({} Edges)", statBlock[0].nodeCount, statBlock[0].edgeCount);
+            logger.info("Results for {} Nodes ({} Edges)", statBlock.get(0).nodeCount, statBlock.get(0).edgeCount);
             for (BnBStats threadStats : statBlock) {
                 logger.info("{} Threads - Average: {}ms ({} / {}); Best: {}ms; Worst: {}ms; Nodes: {}",
                             threadStats.getThreads(),
@@ -167,6 +220,68 @@ public class StatsCalculator {
 
         // 🔊
         Toolkit.getDefaultToolkit().beep();
+    }
+
+    private static @NotNull Options generateCLIOptions() {
+
+        Options options = new Options();
+
+        OptionGroup nodeCountGroup = new OptionGroup();
+        nodeCountGroup.addOption(Option.builder("nr")
+                                       .longOpt("node-range")
+                                       .desc("Range of nodes count to test. Inclusive. Separate the min value from " +
+                                             "the max with a '-' (eg 5-10).")
+                                       .argName("MIN-MAX")
+                                       .numberOfArgs(2).valueSeparator('-').type(Integer.class).build())
+                      .addOption(Option.builder("nl")
+                                       .longOpt("node-list")
+                                       .desc("List of nodes count to test. Separate the values with a comma ','.")
+                                       .argName("V1,V2,V3,...")
+                                       .hasArgs().valueSeparator(',').type(Integer.class).build());
+        nodeCountGroup.setRequired(true);
+
+        options.addOptionGroup(nodeCountGroup)
+               .addOption(Option.builder("er")
+                                .longOpt("edge-cost-range")
+                                .desc("Range of edges cost to generate. Inclusive. Separate the min value from the " +
+                                      "max with a '-' (eg 5-10).")
+                                .argName("MIN-MAX")
+                                .required().numberOfArgs(2).valueSeparator('-').type(Number.class).build())
+               .addOption(Option.builder("t")
+                                .longOpt("timeout")
+                                .desc("Time in seconds after which a single test is terminated.")
+                                .argName("SECONDS")
+                                .required().hasArg().type(Number.class).build())
+               .addOption(Option.builder("T")
+                                .longOpt("threads")
+                                .desc("A list of the thread count to be used for the tests. The same graph is tested " +
+                                      "REPEATS * |THREADS| times, for each node count.")
+                                .argName("THREADS")
+                                .required().hasArgs().valueSeparator(',').type(Number.class).build())
+               .addOption(Option.builder("r")
+                                .longOpt("repeats")
+                                .desc("How many times has a test to be repeated.")
+                                .argName("REPEATS")
+                                .required().hasArg().type(Number.class).build())
+               .addOption(Option.builder("s")
+                                .longOpt("seed")
+                                .desc("A seed to be used for Graph generation. If not specified, the chosen value " +
+                                      "will be system time in milliseconds.")
+                                .argName("SEED")
+                                .hasArg().type(Number.class).build())
+               .addOption(Option.builder("S")
+                                .longOpt("skip")
+                                .desc("How many graphs should be skipped before starting the tests for a particular " +
+                                      "node count.")
+                                .argName("GRAPHS #")
+                                .hasArg().type(Number.class).build())
+               .addOption("h", "help", false, "Print this message.");
+
+        return options;
+    }
+
+    private static @NotNull Options generateHelpOption() {
+        return new Options().addOption("h", "help", false, "Print this message.");
     }
 
     public static class BnBStats {
