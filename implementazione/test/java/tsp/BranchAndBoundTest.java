@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 public class BranchAndBoundTest {
 
     @Test
-    public void esempioPDFGrosso() throws UnsolvableProblemException {
+    public void esempioPDF() throws UnsolvableProblemException {
         Graph<Integer, Integer, Integer> graph = new Graph<>(false);
         graph.addNodesEdge(1, 2, 5);
         graph.addNodesEdge(1, 3, 8);
