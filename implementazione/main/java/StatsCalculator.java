@@ -383,10 +383,10 @@ public class StatsCalculator {
      * A simple class that acts as an accumulator which can also return the average of the submitted values.
      */
     public static class AverageAccumulator {
-        private long time, count;
+        private long totalValue, count;
 
         public AverageAccumulator() {
-            this.time = 0;
+            this.totalValue = 0;
             this.count = 0;
         }
 
@@ -396,7 +396,7 @@ public class StatsCalculator {
          * @param val the value to be added
          */
         public void addValue(long val) {
-            time += val;
+            totalValue += val;
             count++;
         }
 
@@ -407,11 +407,11 @@ public class StatsCalculator {
             if (count == 0) {
                 return 0;
             }
-            return time / count;
+            return totalValue / count;
         }
 
         public long getAccumulatedValue() {
-            return time;
+            return totalValue;
         }
 
         public long getCount() {
