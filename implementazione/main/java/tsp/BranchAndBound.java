@@ -221,7 +221,7 @@ public class BranchAndBound {
         public Void call() {
             try {
                 while (true) {
-                    boolean shouldWait = false;
+                    boolean shouldWait;
                     // Get the next SubProblem without removing it from the queue
                     SubProblem peek = subProblemQueue.peek();
 
