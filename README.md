@@ -1,2 +1,1 @@
-Tesina per il corso magistrale Ottimizzazione Combinatoria, presso UniTO.
-Analisi teorica ed implementazione del Branch & Bound per TSP simmetrico.
+Project for the master's degree combinatorial optimization exam. Theoretical analysis and implementation in Java of a Branch & Bound for the TSP that exploits the Langrangian relaxation of the 1-Tree to calculate the bounds efficiently.
